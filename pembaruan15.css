@@ -1,0 +1,28 @@
+.employee-view-switch{display:inline-flex;gap:3px;background:var(--surface-2,#f4f6f8);border:1px solid var(--line);padding:3px;border-radius:8px;flex-shrink:0}
+.employee-view-switch button{background:transparent;color:var(--muted);border:1px solid transparent;border-radius:5px;padding:8px 12px;min-height:40px;font-size:.875rem}
+.employee-view-switch button[aria-pressed="true"]{background:var(--surface);color:var(--text);border-color:var(--line);font-weight:600}
+.employee-view-switch button:disabled{opacity:.5;cursor:wait}
+.employee-list{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.employee-list ul{list-style:none;margin:0;padding:0}
+.employee-list-head,.employee-list-row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(100px,.7fr) minmax(0,1fr) 80px;gap:22px;align-items:center;padding:15px 20px}
+.employee-list-head{background:var(--surface-2,#f7f9fb);color:var(--muted);font-size:.875rem;font-weight:600}
+.employee-list-row{border-top:1px solid var(--line);font-size:1rem;line-height:1.5;overflow-wrap:anywhere}
+.employee-list-row>*{min-width:0}
+.employee-list-person{display:flex;gap:14px;align-items:center;min-width:0}
+.employee-list-person .employee-avatar{width:42px;height:42px;font-size:.875rem}
+.employee-list-person .employee-name-button{font-size:1rem;text-align:left;line-height:1.45}
+.employee-list-status{font-size:.875rem;color:var(--muted)}
+.employee-list .employee-balance-warning{font-size:.8125rem}
+body[data-area="portal"] .employee-toolbar{flex-wrap:wrap;gap:12px}
+body[data-area="portal"] .employee-toolbar .search-field{flex:1;min-width:180px}
+@media(max-width:680px){
+ .employee-list-head{display:none}
+ .employee-list-row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"person status" "nik nik" "job job";gap:5px 12px;padding:16px}
+ .employee-list-person{grid-area:person}
+ .employee-list-status{grid-area:status;align-self:start}
+ .employee-list-nik{grid-area:nik;padding-left:56px;font-size:.875rem;color:var(--muted)}
+ .employee-list-job{grid-area:job;padding-left:56px;font-size:.875rem}
+ .employee-view-switch button{min-height:44px}
+ body[data-area="portal"] .employee-toolbar .search-field{flex-basis:100%}
+ .portal-theme-toggle{width:42px;height:42px}
+}

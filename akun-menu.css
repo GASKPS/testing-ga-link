@@ -1,0 +1,73 @@
+/* Menu akun Portal GA. Foto mengikuti Profil & Pengaturan yang sudah ada. */
+body[data-area="portal"] .topbar-right{flex-shrink:0;gap:10px}
+body[data-area="portal"] .topbar-left{min-width:0;flex:1;gap:12px}
+body[data-area="portal"] .topbar-left #page-label{min-width:0;overflow:hidden;text-overflow:ellipsis}
+body[data-area="portal"] .topbar-right .portal-theme-toggle{
+  width:44px;height:44px;border:1px solid var(--line);border-radius:50%;
+  background:var(--surface);color:var(--muted);
+  transition:border-color .18s ease,background-color .18s ease,color .18s ease;
+}
+body[data-area="portal"] .topbar-right .portal-theme-toggle:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+body[data-area="portal"] .sidebar-foot{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.sidebar-today{font-size:12px;line-height:1.5;color:var(--muted)}
+.account-menu-shell{position:relative;flex:0 0 auto}
+.account-menu-toggle{
+  display:grid;place-items:center;width:44px;height:44px;padding:3px;
+  border:1px solid var(--line);border-radius:50%;background:var(--surface);
+  color:var(--text);cursor:pointer;touch-action:manipulation;
+  transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+}
+.account-menu-toggle .account-avatar{width:36px;height:36px;pointer-events:none}
+.account-menu-toggle:hover,.account-menu-toggle[aria-expanded="true"]{
+  border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);
+}
+.account-menu-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.account-menu-toggle:disabled{cursor:default;opacity:.55;box-shadow:none}
+.account-menu{
+  position:absolute;top:calc(100% + 10px);right:0;z-index:30;
+  width:260px;max-width:calc(100vw - 28px);max-height:calc(100dvh - 88px);overflow-y:auto;overscroll-behavior:contain;padding:8px;
+  border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  color:var(--text);box-shadow:0 14px 38px -12px rgba(23,42,65,.23),0 3px 10px rgba(23,42,65,.05);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(-6px) scale(.98);transform-origin:top right;
+  transition:opacity .18s ease,transform .18s cubic-bezier(.2,.8,.2,1),visibility 0s linear .18s;
+}
+.account-menu.is-open{
+  opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1);
+  transition-delay:0s;
+}
+.account-menu-person{display:grid;gap:4px;margin:0 4px 6px;padding:10px 8px 13px;border-bottom:1px solid var(--line-strong)}
+.account-menu-person strong{font-size:14px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+.account-menu-person span{font-size:12px;line-height:1.4;color:var(--muted)}
+.account-menu-caption{padding:4px 12px 7px;color:var(--muted);font-size:11px;line-height:1.5}
+.account-menu-item{
+  display:flex;align-items:center;gap:11px;width:100%;min-height:44px;margin:0;padding:11px 12px;
+  border:0;border-radius:7px;background:transparent;color:var(--text);
+  font-family:inherit;font-size:14px;font-weight:500;line-height:1.4;text-align:left;cursor:pointer;
+  transition:background-color .14s ease,color .14s ease;
+}
+.account-menu-item svg{width:19px;height:19px;flex:none;color:var(--muted)}
+.account-menu-item:hover,.account-menu-item:focus-visible{background:var(--surface-2,#f7f9fb);outline:none}
+.account-menu-item:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+.account-menu-item[aria-current="page"]{background:var(--accent-soft)}
+.account-menu-divider{height:1px;margin:7px 12px;background:var(--line-strong)}
+.account-menu-logout,.account-menu-logout svg{color:#b14039}
+.account-menu-logout:hover,.account-menu-logout:focus-visible{background:#fff1ef}
+.account-menu-item:disabled{opacity:.55;cursor:wait}
+body[data-area="portal"] .ga-profile-header{align-items:flex-start;gap:20px;padding-bottom:24px}
+body[data-area="portal"] .ga-profile-header>div{min-width:0}
+body[data-area="portal"] .ga-profile-header h1{font-size:28px;line-height:1.3;letter-spacing:-.4px}
+body[data-area="portal"] .ga-profile-header .ga-profile-subtitle{font-size:14px;line-height:1.6;color:var(--muted);margin:8px 0 0}
+html[data-theme="dark"] .account-menu{box-shadow:0 14px 38px -12px #0009,0 3px 10px #0003}
+html[data-theme="dark"] .account-menu-toggle:focus-visible{outline-color:#96b9dc}
+html[data-theme="dark"] .account-menu-item:focus-visible{box-shadow:inset 0 0 0 2px #96b9dc}
+html[data-theme="dark"] .account-menu-logout,html[data-theme="dark"] .account-menu-logout svg{color:#ffc4bc}
+html[data-theme="dark"] .account-menu-logout:hover,html[data-theme="dark"] .account-menu-logout:focus-visible{background:#3b292c}
+@media(max-width:650px){
+  body[data-area="portal"] .topbar{gap:10px}
+  body[data-area="portal"] .topbar-left{flex:1}
+  .account-menu{top:calc(100% + 9px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .account-menu,.account-menu-toggle,.account-menu-item,body[data-area="portal"] .topbar-right .portal-theme-toggle{transition:none;transform:none}
+}

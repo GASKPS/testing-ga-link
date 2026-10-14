@@ -1,0 +1,69 @@
+/* Spreadsheet input follows the portal palette in both themes. */
+#tracking-input-options{display:flex;align-items:center;gap:12px}
+.ti-mode-switch{display:flex;gap:2px;border:1px solid var(--line-strong);padding:3px;border-radius:7px;background:var(--surface)}
+.ti-mode-switch button{font-size:13px;font-weight:550;color:var(--muted);min-height:34px;padding:6px 13px;background:transparent;border-radius:4px;transition:background .16s,color .16s}
+.ti-mode-switch button[aria-pressed="true"]{color:var(--accent);background:var(--accent-soft)}
+.ti-mode-switch button:disabled{opacity:.55;cursor:wait}
+.ti-dialog{width:calc(100vw - 48px);max-width:1536px;max-height:calc(100dvh - 48px);padding:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);box-shadow:0 24px 70px #10182833;overflow:hidden}
+.ti-dialog[open]{display:flex;flex-direction:column;animation:ti-enter .18s ease-out}
+.ti-dialog::backdrop{background:#1018287a;backdrop-filter:blur(2px)}
+.ti-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px 26px 20px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.ti-heading .dialog-kicker{font-size:11px;margin-bottom:9px;letter-spacing:.08em;color:var(--muted)}
+.ti-mode-tag{display:inline-block;margin-left:8px;border:1px solid var(--line-strong);border-radius:4px;padding:2px 6px;color:var(--accent);font-size:10px;letter-spacing:.06em;vertical-align:middle}
+.ti-heading h2{font-size:23px;letter-spacing:-.5px;line-height:1.25;margin:0 0 6px;font-weight:650}
+.ti-heading p:last-child{color:var(--muted);font-size:13px;line-height:1.5;margin:0}
+#tracking-excel-form{display:flex;flex-direction:column;min-height:0;overflow:auto}
+.ti-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 26px;flex:0 0 auto}
+.ti-toolbar-left{display:flex;align-items:center;gap:18px;min-width:0}
+.ti-toolbar .button{min-height:38px;font-size:13px;padding:8px 12px;background:var(--surface);color:var(--text);border-color:var(--line-strong)}
+.ti-office{font-size:12px;color:var(--muted)}
+.ti-help-toggle{display:flex;align-items:center;gap:7px;background:transparent;color:var(--accent);font-size:12px;padding:8px 0;white-space:nowrap}
+.ti-help-toggle svg{width:15px;height:15px}
+.ti-help{background:var(--accent-soft);border:1px solid var(--line);border-radius:6px;margin:0 26px 14px;padding:12px 15px;color:var(--text);font-size:12px;line-height:1.6;flex:0 0 auto}
+.ti-help p{margin:0}.ti-help p+p{margin-top:4px}
+.ti-message{border:1px solid var(--line-strong);background:var(--accent-soft);color:var(--text);border-radius:6px;margin:0 26px 14px;padding:11px 14px;font-size:13px;line-height:1.5;flex:0 0 auto;max-height:120px;overflow:auto}
+.ti-message[data-tone="error"]{background:#fff5f3;color:#a3291c;border-color:#f2c0b8}
+.ti-message[data-tone="success"]{background:#f0f9f4;color:#236242;border-color:#bfdcc9}
+.ti-frame{min-height:150px;max-height:54dvh;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;border-block:1px solid var(--line);background:var(--surface);flex:1 1 auto}
+.ti-table{table-layout:fixed;width:1514px;border-collapse:separate;border-spacing:0;font-size:13px}
+.ti-table th,.ti-table td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;vertical-align:top;padding:0;background:var(--surface)}
+.ti-table thead th{position:sticky;top:0;z-index:3;padding:13px 12px;background:var(--bg);font-size:12px;font-weight:600;line-height:1.5;white-space:nowrap;color:var(--text)}
+.ti-table th:last-child,.ti-table td:last-child{border-right:0}
+.ti-table tbody tr:last-child th,.ti-table tbody tr:last-child td{border-bottom:0}
+.ti-table .ti-row-number{position:sticky;left:0;z-index:2;text-align:center;padding:15px 4px;background:var(--bg);font-size:12px;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.ti-table thead th:first-child{left:0;z-index:4;text-align:center}
+.ti-no-col{width:44px}.ti-name-col{width:258px}.ti-date-col{width:143px}.ti-bu-col{width:101px}.ti-type-col{width:171px}.ti-number-col{width:177px}.ti-office-col{width:180px}.ti-note-col{width:275px}.ti-status-col{width:122px}.ti-delete-col{width:43px}
+.ti-required{color:var(--muted)}
+.ti-table :is(input,select,textarea){width:100%;height:48px;min-height:48px;margin:0;border:2px solid transparent;border-radius:0;padding:11px 10px;background:var(--surface);color:var(--text);font-size:13px;line-height:1.6;transition:none}
+.ti-table select{padding-right:24px}
+.ti-table textarea{resize:vertical;min-height:48px;max-height:180px}
+.ti-table :is(input,textarea)::placeholder{color:var(--muted);opacity:.75}
+.ti-table :is(input,select,textarea):hover{background:var(--accent-soft);border-color:transparent}
+.ti-table :is(input,select,textarea):focus{position:relative;z-index:1;outline:0;border-color:var(--accent);background:var(--surface)}
+.ti-table :is(input,select,textarea)[aria-invalid="true"]{background:#fff5f3;border-color:#d96556}
+.ti-table :is(input,select,textarea):disabled{background:var(--surface);opacity:.85;cursor:default;border-color:transparent;color:var(--text)}
+.ti-table select:disabled{color:var(--muted);background:var(--bg);opacity:1}
+.ti-cell-error{display:block;padding:0 10px 9px;font-size:11px;color:#ae3325;line-height:1.5;overflow-wrap:anywhere}
+.ti-status-cell{padding:14px 8px!important}
+.ti-row-status{display:inline-block;color:var(--muted);font-size:11px;line-height:1.45}
+.ti-row-status[data-state="error"]{color:#a3291c}.ti-row-status[data-state="ready"],.ti-row-status[data-state="saved"]{color:#28784e}
+.ti-delete-cell{text-align:center!important}
+.ti-delete.icon-button{width:32px;height:32px;margin:8px 4px;color:var(--muted)}
+.ti-delete svg{width:15px;height:15px}.ti-delete:hover{color:#a3291c;background:#fff0ed}
+.ti-bottom{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:12px 26px;color:var(--muted);font-size:12px;flex:0 0 auto}
+.ti-count{font-variant-numeric:tabular-nums;color:var(--text)}
+.ti-actions{border-top:1px solid var(--line);padding:18px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto;background:var(--surface)}
+.ti-actions>div{display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-end}
+.ti-save-note{font-size:12px;color:var(--muted)}
+.ti-actions .button-secondary{background:var(--surface);color:var(--text);border-color:var(--line-strong)}
+.ti-actions .button-primary{background:var(--accent);color:#fff}
+html[data-theme="dark"] .ti-message[data-tone="error"],html[data-theme="dark"] .ti-table [aria-invalid="true"]{background:#482e31;color:#ffd0c8;border-color:#ac635b}
+html[data-theme="dark"] .ti-message[data-tone="success"]{background:#29463c;color:#c2edd9;border-color:#4b705e}
+html[data-theme="dark"] :is(.ti-cell-error,.ti-row-status[data-state="error"]){color:#ffb5a9}
+html[data-theme="dark"] :is(.ti-row-status[data-state="ready"],.ti-row-status[data-state="saved"]){color:#a0d9b7}
+html[data-theme="dark"] .ti-mode-switch button[aria-pressed="true"]{color:var(--text)}
+html[data-theme="dark"] :is(.ti-mode-tag,.ti-help-toggle){color:#c4dfff}
+@keyframes ti-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){#tracking-page .page-heading{align-items:flex-start;flex-wrap:wrap}#tracking-input-options{margin-left:auto}}
+@media(max-width:600px){#tracking-input-options{width:100%;margin:0;justify-content:space-between;gap:8px}.ti-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);border-radius:9px}.ti-heading{padding:18px 16px 15px}.ti-heading h2{font-size:21px}.ti-toolbar{padding:12px 16px;align-items:flex-start;gap:8px}.ti-toolbar-left{align-items:flex-start;flex-direction:column;gap:8px}.ti-help-toggle{font-size:11px}.ti-help,.ti-message{margin:0 16px 12px}.ti-help{max-height:150px;overflow:auto}.ti-frame{max-height:46dvh}.ti-bottom{padding:11px 16px;align-items:flex-start;flex-direction:column;gap:5px}.ti-actions{padding:14px 16px;align-items:stretch;flex-direction:column;gap:8px}.ti-actions>div{gap:7px}.ti-actions .button{padding:9px 12px;font-size:13px}.ti-keyboard{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.ti-dialog[open]{animation:none}.ti-mode-switch button{transition:none}}

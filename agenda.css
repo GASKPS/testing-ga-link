@@ -1,0 +1,84 @@
+/* Daftar ringkas; informasi lengkap tersedia melalui Detail. */
+body[data-area="portal"] .agenda-list{background:var(--surface,#fff);border:1px solid var(--line,#d5dfea);border-radius:10px;overflow:hidden}
+body[data-area="portal"] .agenda-list-head,body[data-area="portal"] .agenda-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.6fr) 152px;gap:18px;align-items:center;padding:18px 20px}
+body[data-area="portal"] .agenda-list-head{background:var(--surface-2,#f7f9fb);color:var(--muted,#586b80);font-size:.875rem;font-weight:600;padding-top:13px;padding-bottom:13px}
+body[data-area="portal"] .agenda-row{border-top:1px solid var(--line,#d5dfea);min-width:0;font-size:1rem;line-height:1.5;overflow-wrap:anywhere}
+body[data-area="portal"] .agenda-row>*{min-width:0}
+body[data-area="portal"] .agenda-row-person h2{font-size:1rem;font-weight:650;line-height:1.45;margin:0;color:var(--text,#233a51)}
+body[data-area="portal"] .agenda-row-person p{font-size:.875rem;color:var(--muted,#5e7186);margin:4px 0 0}
+body[data-area="portal"] .agenda-row-date{font-size:.875rem;color:var(--text,#233a51)}
+body[data-area="portal"] .agenda-row-person{grid-column:1}
+body[data-area="portal"] .agenda-row-date{grid-column:2}
+body[data-area="portal"] .agenda-row-status{grid-column:3}
+body[data-area="portal"] .agenda-row-note{grid-column:4}
+body[data-area="portal"] .agenda-row-actions{grid-column:5}
+body[data-area="portal"] .agenda-date-label{display:none}
+body[data-area="portal"] .agenda-row-status .status-badge,body[data-area="portal"] .agenda-row-status .agenda-warning{font-size:.875rem;white-space:normal;line-height:1.4}
+body[data-area="portal"] .agenda-excerpt{margin:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;color:var(--text,#31465c);font-size:.9375rem;line-height:1.5;white-space:normal}
+body[data-area="portal"] .agenda-row-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+body[data-area="portal"] .agenda-row-actions .button{min-height:40px;padding:8px 11px;font-size:.875rem}
+body[data-area="portal"] .agenda-row.near,body[data-area="portal"] .agenda-row.today{box-shadow:inset 3px 0 #b58a31}
+body[data-area="portal"] .agenda-row.late{box-shadow:inset 3px 0 #b75748}
+body[data-area="portal"] .agenda-detail{width:min(720px,calc(100vw - 24px));max-height:90dvh}
+body[data-area="portal"] .agenda-detail-state{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+body[data-area="portal"] .agenda-detail-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;margin:0 0 24px}
+body[data-area="portal"] .agenda-detail-fields dt{font-size:.875rem;color:var(--muted,#5e7186);margin-bottom:4px}
+body[data-area="portal"] .agenda-detail-fields dd{margin:0;font-size:1rem;overflow-wrap:anywhere}
+body[data-area="portal"] .agenda-detail-note{margin:20px 0}
+body[data-area="portal"] .agenda-detail-note h3{font-size:.875rem;color:var(--muted,#5e7186);font-weight:600;margin:0 0 8px}
+body[data-area="portal"] .agenda-detail-note p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:1rem;line-height:1.65;margin:0}
+body[data-area="portal"] .agenda-detail-meta{border-top:1px solid var(--line,#d5dfea);padding-top:18px;margin-top:24px;font-size:.8125rem;color:var(--muted,#5e7186);line-height:1.65}
+body[data-area="portal"] .agenda-detail-meta .agenda-meta{display:grid;gap:5px}
+body[data-area="portal"] #agenda-detail-error{margin:0 24px 16px}
+body[data-area="portal"] .agenda-detail .dialog-actions{justify-content:flex-start;flex-wrap:wrap;gap:8px}
+body[data-area="portal"] .agenda-count{font-size:.875rem}
+@media(max-width:1100px){
+ body[data-area="portal"] .agenda-list{background:transparent;border:0;border-radius:0;display:grid;gap:14px;overflow:visible}
+ body[data-area="portal"] .agenda-list-head{display:none}
+ body[data-area="portal"] .agenda-row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"person status" "date date" "note note" "actions actions";gap:12px;padding:18px;background:var(--surface,#fff);border:1px solid var(--line,#d5dfea);border-radius:10px}
+ body[data-area="portal"] .agenda-row-person{grid-area:person}
+ body[data-area="portal"] .agenda-row-status{grid-area:status;max-width:150px;align-self:start}
+ body[data-area="portal"] .agenda-row-date{grid-area:date}
+ body[data-area="portal"] .agenda-row-date[hidden]{display:none}
+ body[data-area="portal"] .agenda-date-label{display:inline;margin-right:8px;color:var(--muted,#5e7186)}
+ body[data-area="portal"] .agenda-row-note{grid-area:note}
+ body[data-area="portal"] .agenda-row-note:empty{display:none}
+ body[data-area="portal"] .agenda-row-actions{grid-area:actions;justify-content:flex-start}
+ body[data-area="portal"] .agenda-row-actions .button{min-height:44px;padding-left:16px;padding-right:16px}
+}
+@media(max-width:480px){body[data-area="portal"] .agenda-detail-fields{grid-template-columns:1fr}body[data-area="portal"] .agenda-row-status{max-width:115px}}
+
+/* Data Tamu dalam tabel: judul kolom tetap terlihat saat menggulir. */
+body[data-area="portal"] .guest-sheet-scroll{max-width:100%;max-height:min(480px,65dvh);overflow:auto;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface);overscroll-behavior:contain;scrollbar-gutter:stable}
+body[data-area="portal"] .guest-sheet-scroll:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+body[data-area="portal"] .guest-sheet{width:100%;min-width:940px;table-layout:fixed;border-collapse:separate;border-spacing:0;color:var(--text);font-size:14px;line-height:1.5}
+body[data-area="portal"] .guest-sheet-admin{min-width:1040px}
+body[data-area="portal"] .guest-sheet col:nth-child(1){width:52px}
+body[data-area="portal"] .guest-sheet col:nth-child(2){width:200px}
+body[data-area="portal"] .guest-sheet col:nth-child(3){width:165px}
+body[data-area="portal"] .guest-sheet col:nth-child(4){width:210px}
+body[data-area="portal"] .guest-sheet col:nth-child(5){width:165px}
+body[data-area="portal"] .guest-sheet col:nth-child(6){width:135px}
+body[data-area="portal"] .guest-sheet col:nth-child(7){width:92px}
+body[data-area="portal"] .guest-sheet th,body[data-area="portal"] .guest-sheet td{padding:12px 14px;text-align:left;vertical-align:middle;border-right:1px solid var(--line);border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+body[data-area="portal"] .guest-sheet th{position:sticky;top:0;z-index:2;background:var(--surface-2,#eff3f7);color:var(--text);font-size:13px;font-weight:600;box-shadow:0 1px 0 var(--line-strong);white-space:nowrap}
+body[data-area="portal"] .guest-sheet th:first-child,body[data-area="portal"] .guest-sheet .guest-sheet-number{text-align:right;font-variant-numeric:tabular-nums}
+body[data-area="portal"] .guest-sheet .guest-sheet-number{color:var(--muted)}
+body[data-area="portal"] .guest-sheet th:last-child,body[data-area="portal"] .guest-sheet td:last-child{border-right:0}
+body[data-area="portal"] .guest-sheet tbody tr:last-child td{border-bottom:0}
+body[data-area="portal"] .guest-sheet tbody tr:nth-child(even){background:var(--surface-2,#f7f9fb)}
+body[data-area="portal"] .guest-sheet tbody tr:hover{background:var(--accent-soft)}
+body[data-area="portal"] .guest-sheet .guest-group-start td{border-top:1px solid var(--line-strong)}
+body[data-area="portal"] .guest-sheet-name{font-weight:550}
+body[data-area="portal"] .guest-sheet-date{white-space:nowrap;font-size:13px}
+body[data-area="portal"] .guest-sheet-status{font-size:13px;font-weight:500}
+body[data-area="portal"] .guest-sheet-detail{min-height:36px;padding:6px 10px;border:1px solid var(--line-strong);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;line-height:1.5}
+body[data-area="portal"] .guest-sheet-detail:hover{border-color:var(--accent)}
+body[data-area="portal"] .guest-sheet-detail:disabled{opacity:.5;cursor:wait}
+body[data-area="portal"] .guest-more{display:flex;justify-content:center;padding:22px 0 8px}
+body[data-area="portal"] .guest-more .button{min-height:44px;min-width:170px;padding:10px 22px}
+body[data-area="portal"] .agenda-toolbar #agenda-status-field{min-width:150px}
+body[data-area="portal"] .agenda-toolbar :is(#agenda-from-field,#agenda-to-field){min-width:155px}
+body[data-area="portal"] .agenda-toolbar input[type="date"]{width:100%}
+html[data-theme="dark"] body[data-area="portal"] .guest-sheet-scroll:focus-visible{outline-color:#96b9dc}
+@media(max-width:650px){body[data-area="portal"] .guest-sheet-detail{min-height:44px}body[data-area="portal"] .agenda-toolbar :is(#agenda-from-field,#agenda-to-field){min-width:0;flex:1 1 calc(50% - 8px)}}

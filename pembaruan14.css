@@ -1,0 +1,90 @@
+/* Portal GA · pembaruan 14. Ruang kerja kantor, putih dan biru tinta. */
+body[data-area="portal"] .sidebar-logout{display:flex;align-items:center;gap:10px;min-height:44px;padding:10px 12px;color:#ac2925;background:#fff7f6;border:1px solid #efceca;border-radius:9px;font-size:14px;font-weight:600;text-align:left;transition:background .15s}
+body[data-area="portal"] .sidebar-logout svg{width:19px;height:19px;flex:none}
+body[data-area="portal"] .sidebar-logout:hover{background:#fcebe8;border-color:#dca9a2}
+body[data-area="portal"] .profile-trigger{background:#fff;border:1px solid #dce4ec;border-radius:10px;min-height:76px;padding:14px 12px}
+body[data-area="portal"] .sidebar-foot{gap:10px;padding-top:18px}
+body[data-area="portal"] .profile-trigger-text strong{font-size:14px}
+body[data-area="portal"] .ga-profile{max-width:1060px;margin:0 auto}
+body[data-area="portal"] .ga-profile-header{margin-bottom:24px}
+body[data-area="portal"] .ga-profile-surface{background:#fff;border:1px solid #dce4ec;border-radius:14px;overflow:hidden;box-shadow:0 3px 14px #18344b05}
+body[data-area="portal"] .ga-profile-tabs{padding:0 24px;background:#fafbfd;gap:8px;overflow:auto;flex-wrap:nowrap;border-bottom:1px solid #dce4ec}
+body[data-area="portal"] .ga-profile-tab{white-space:nowrap;font-size:14px;min-height:54px;padding:14px 18px}
+body[data-area="portal"] .ga-profile-body{padding:28px}
+body[data-area="portal"] .ga-profile-person{background:#f5f8fc;border:1px solid #e1e8f0;border-radius:12px;padding:24px;gap:20px;margin-bottom:28px}
+body[data-area="portal"] .ga-profile-person>.account-avatar{width:76px;height:76px;font-size:24px;flex:none}
+body[data-area="portal"] .ga-profile-person strong{font-size:22px;line-height:1.35}
+body[data-area="portal"] .ga-profile-section{max-width:760px}
+body[data-area="portal"] .ga-profile-section h3{font-size:17px;margin:0 0 18px}
+body[data-area="portal"] .ga-profile input,body[data-area="portal"] .ga-profile select,body[data-area="portal"] .ga-profile-button{font-size:14px;min-height:44px;border-radius:8px}
+body[data-area="portal"] .ga-profile-message{padding:12px 14px;border-radius:8px}
+body[data-area="portal"] .ga-profile [hidden]{display:none!important}
+@media(max-width:640px){body[data-area="portal"] .ga-profile-body{padding:18px}body[data-area="portal"] .ga-profile-tabs{padding:0 8px}body[data-area="portal"] .ga-profile-tab{padding:14px 12px}body[data-area="portal"] .ga-profile-person{padding:18px;gap:14px}body[data-area="portal"] .ga-profile-person strong{font-size:20px}body[data-area="portal"] .ga-profile-person>.account-avatar{width:60px;height:60px}}
+body[data-area="portal"] .ga-account-tool{padding:24px 0;border-top:1px solid #dce3eb;margin-top:24px}
+body[data-area="portal"] .ga-account-tool h3{font-size:16px;margin:0 0 8px}
+body[data-area="portal"] .ga-account-tool input:not([type="checkbox"]){width:100%;max-width:460px;display:block}
+body[data-area="portal"] .ga-account-tool .ga-profile-label{margin-top:16px}
+body[data-area="portal"] .auth-password-help{font-size:12px;color:#61718a;line-height:1.5;margin:16px 0}
+body[data-area="portal"] .agenda-panel{background:transparent;box-shadow:none;border:0}
+body[data-area="portal"] .agenda-toolbar{display:flex;align-items:end;gap:16px;flex-wrap:wrap;padding:24px 0 18px}
+body[data-area="portal"] .agenda-search{flex:1;min-width:210px}
+body[data-area="portal"] .agenda-toolbar .field{margin:0}
+body[data-area="portal"] .agenda-toolbar input,body[data-area="portal"] .agenda-toolbar select{min-height:44px;background:#fff}
+body[data-area="portal"] .agenda-count{display:block;color:#687a90;font-size:12px;margin:0 0 16px}
+body[data-area="portal"] .agenda-items{display:grid;gap:20px}
+body[data-area="portal"] .agenda-item{background:#fff;border:1px solid #d5dfea;border-radius:12px;padding:24px;box-shadow:0 2px 3px #1c355004;overflow-wrap:anywhere}
+body[data-area="portal"] .agenda-item-header{display:flex;justify-content:space-between;align-items:start;gap:16px}
+body[data-area="portal"] .agenda-item-header h2{font-size:18px;line-height:1.4;margin:6px 0;color:#183650}
+body[data-area="portal"] .guest-origin{margin:0;color:#63758a;font-size:13px}
+body[data-area="portal"] .agenda-kind{color:#526981;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+body[data-area="portal"] .guest-dates{display:flex;gap:40px;margin:24px 0;flex-wrap:wrap}
+body[data-area="portal"] .guest-dates div{display:grid;gap:6px;font-size:13px}
+body[data-area="portal"] .guest-dates span,body[data-area="portal"] .agenda-label{font-size:11px;color:#65788e}
+body[data-area="portal"] .guest-dates strong{font-weight:500;color:#294661}
+body[data-area="portal"] .guest-notes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:24px;background:#f6f8fb;border-radius:8px;padding:16px 18px;margin:0 0 20px}
+body[data-area="portal"] .guest-notes p{margin:6px 0 0;line-height:1.65;font-size:14px}
+body[data-area="portal"] .agenda-item footer{border-top:1px solid #e5eaf0;padding-top:16px}
+body[data-area="portal"] .agenda-item .agenda-meta{display:flex;flex-wrap:wrap;gap:6px 20px;color:#708096;font-size:11px;line-height:1.6;margin:0 0 16px}
+body[data-area="portal"] .agenda-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+body[data-area="portal"] .agenda-actions .button{min-height:40px}
+body[data-area="portal"] .agenda-note{white-space:pre-wrap;overflow-wrap:anywhere}
+body[data-area="portal"] .note-content{padding:8px 0 20px;font-size:14px;line-height:1.7}
+body[data-area="portal"] .agenda-item.near,body[data-area="portal"] .agenda-item.today{border-left:3px solid #c99a39}
+body[data-area="portal"] .agenda-item.late{border-left:3px solid #b95749}
+body[data-area="portal"] .agenda-reminder-date,body[data-area="portal"] .agenda-completion{font-size:12px;color:#667a8f;line-height:1.6}
+body[data-area="portal"] .agenda-saved-badge{border-radius:6px;background:#edf6f1;color:#366853;font-size:12px;padding:8px 10px}
+body[data-area="portal"] .agenda-saved-help{background:#edf3f9;color:#45627d;font-size:13px;line-height:1.6;border-radius:8px;padding:14px 18px}
+body[data-area="portal"] .guest-person{margin:0 0 16px;border:1px solid #dae3ed;border-radius:8px;padding:16px;min-width:0}
+body[data-area="portal"] .guest-person legend{padding:0 6px;color:#5e7288;font-size:12px}
+body[data-area="portal"] .download-section{border:1px solid #dce4ed;border-radius:12px;padding:24px;margin-bottom:20px}
+body[data-area="portal"] .download-section h2{font-size:18px;margin:0 0 8px}
+body[data-area="portal"] .download-section p{font-size:13px;line-height:1.7;color:#687b90}
+body[data-area="portal"] .download-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}
+@media(max-width:640px){
+ body[data-area="portal"] .agenda-item{padding:18px;border-radius:10px}
+ body[data-area="portal"] .guest-notes{grid-template-columns:1fr;gap:18px;padding:14px}
+ body[data-area="portal"] .guest-dates{gap:18px 30px;margin:20px 0}
+ body[data-area="portal"] .agenda-toolbar{gap:12px}
+ body[data-area="portal"] .agenda-toolbar .agenda-search{flex-basis:100%}
+ body[data-area="portal"] .agenda-toolbar .field:not(.agenda-search){flex:1;min-width:110px}
+ body[data-area="portal"] .agenda-actions .button{min-height:44px}
+ body[data-area="portal"] .download-fields{grid-template-columns:1fr}
+ body[data-area="portal"] .download-section{padding:18px}
+}
+body[data-area="portal"] .employee-detail-tabs{display:flex;gap:18px;border-bottom:1px solid #dce3ec;margin-bottom:22px;overflow-x:auto}
+body[data-area="portal"] .employee-detail-tabs button{background:transparent;border:0;border-bottom:2px solid transparent;padding:14px 0;white-space:nowrap;font:inherit;color:#63788f;min-height:44px;cursor:pointer}
+body[data-area="portal"] .employee-detail-tabs [aria-selected="true"]{color:#244b72;border-bottom-color:#244b72;font-weight:600}
+body[data-area="portal"] .employee-balance-warning{display:block;width:fit-content;margin-top:7px;background:#fbf3df;color:#806015;padding:4px 7px;border-radius:4px;font-size:11px}
+body[data-area="portal"] .employee-balance-warning.urgent{background:#fbede9;color:#a23c31}
+body[data-area="portal"] .employee-balance-summary{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+body[data-area="portal"] .employee-balance-summary div{background:#f2f6fa;border:1px solid #e0e7ef;border-radius:8px;padding:18px;display:grid;gap:8px}
+body[data-area="portal"] .employee-balance-summary span{font-size:12px;color:#667a91}
+body[data-area="portal"] .employee-balance-summary strong{font-size:20px;color:#294d70}
+body[data-area="portal"] .employee-credit{display:flex;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid #e4eaf1;font-size:13px}
+body[data-area="portal"] .employee-credit small{display:block;font-size:11px;color:#6b7d90;margin-top:6px}
+body[data-area="portal"] .employee-credit div:last-child{text-align:right}
+body[data-area="portal"] .cuti-settings{border:1px solid #d7e0eb;background:#fff;border-radius:12px;padding:24px;margin:18px 0}
+body[data-area="portal"] .cuti-settings h2{font-size:18px;margin-top:0}
+body[data-area="portal"] .cuti-settings-fields{display:flex;align-items:end;gap:20px;flex-wrap:wrap}
+body[data-area="portal"] .cuti-settings-fields .field{max-width:180px}
+body[data-area="portal"] .cuti-tabs{overflow-x:auto;white-space:nowrap}

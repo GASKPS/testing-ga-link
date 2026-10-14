@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f3f5f7">
+  <meta name="description" content="Portal kerja GA Services untuk data karyawan, tracking dokumen, serah terima perangkat, serta Link Kerja.">
+  <title>Tracking Dokumen · GA Services</title>
+  <link rel="icon" href="data:,">
+  <script src="tema.js?v=15"></script>
+  <link rel="stylesheet" href="portal.css?v=15">
+  <link rel="stylesheet" href="devices.css?v=15">
+  <link rel="stylesheet" href="employees.css?v=15">
+  <link rel="stylesheet" href="skc.css?v=15">
+  <link rel="stylesheet" href="akses.css?v=15">
+  <link rel="stylesheet" href="mess-admin.css?v=15">
+  <link rel="stylesheet" href="profil.css?v=15">
+  <link rel="stylesheet" href="portal-polish.css?v=15">
+  <link rel="stylesheet" href="paginasi.css?v=15">
+  <script defer src="konfigurasi.js?v=15"></script>
+  <script defer src="form-guard.js?v=15"></script>
+  <script defer src="akses.js?v=19"></script>
+  <script defer src="preferensi.js?v=15"></script>
+  <script defer src="link-store.js?v=15"></script>
+  <script defer src="office-store.js?v=19"></script>
+  <script defer src="tracking-store.js?v=19"></script>
+  <script defer src="foto-karyawan.js?v=15"></script>
+  <script defer src="employee-store.js?v=15"></script>
+  <script defer src="jabatan.js?v=15"></script>
+  <script defer src="device-store.js?v=15"></script>
+  <script defer src="skc-store.js?v=15"></script>
+  <script defer src="tracking-pdf.js?v=21"></script>
+  <script defer src="paginasi.js?v=15"></script>
+  <script defer src="portal.js?v=28"></script>
+  <script defer src="data-admin.js?v=15"></script>
+  <script defer src="employees.js?v=15"></script>
+  <script defer src="devices.js?v=15"></script>
+  <script defer src="skc.js?v=19"></script>
+  <script defer src="mess-import.js?v=16"></script>
+  <script defer src="mess-admin.js?v=17"></script>
+  <script defer src="profil-store.js?v=19"></script>
+  <script defer src="profil.js?v=26"></script>
+  <script defer src="office.js?v=19"></script>
+  <script defer src="tamu-kartu.js?v=27"></script>
+  <script defer src="agenda.js?v=27"></script>
+  <script defer src="cuti-store.js?v=15"></script>
+  <script defer src="cuti.js?v=15"></script>
+  <script defer src="ekspor.js?v=20"></script>
+  <link rel="stylesheet" href="pembaruan08.css?v=15">
+  <link rel="stylesheet" href="cuti.css?v=15">
+  <link rel="stylesheet" href="pembaruan14.css?v=15">
+  <link rel="stylesheet" href="agenda.css?v=27">
+  <link rel="stylesheet" href="pembaruan15.css?v=15">
+  <link rel="stylesheet" href="tema.css?v=15">
+  <link rel="stylesheet" href="stok.css?v=20">
+  <script defer src="stok-domain.js?v=20"></script>
+  <script defer src="stok-store.js?v=20"></script>
+  <script defer src="stok.js?v=20"></script>
+  <link rel="stylesheet" href="akun-menu.css?v=26">
+  <script defer src="akun-menu.js?v=26"></script>
+  <link rel="stylesheet" href="tracking-input.css?v=28">
+  <script defer src="tracking-input-domain.js?v=28"></script>
+  <script defer src="tracking-input-store.js?v=28"></script>
+  <script defer src="tracking-input.js?v=28"></script>
+</head>
+<body data-area="portal">
+<section class="auth-screen" id="auth-screen" aria-labelledby="auth-title"><div class="auth-card">
+<img class="auth-logo" src="ga-logo.jpg" width="220" height="64" alt="General Affair Services"><span class="auth-kicker">CAMP &amp; FACILITY</span><h1 id="auth-title">Masuk ke Portal GA</h1><p id="auth-description">Gunakan akun kerja Anda untuk melanjutkan.</p>
+<p class="auth-error" id="auth-error" role="alert" hidden></p>
+<form id="login-form"><label for="login-email">Email</label><input id="login-email" type="email" required autocomplete="username"><label for="login-password">Password</label><div class="auth-password"><input id="login-password" type="password" required autocomplete="current-password"><button id="auth-password-toggle" type="button">Lihat</button></div><p class="auth-password-help">Lupa kata sandi? Hubungi Administrator.</p><button id="login-submit" type="submit" class="auth-submit" disabled>Masuk</button></form>
+<div id="auth-setup" class="auth-setup" hidden><p>Jalankan SQL pemasangan, lalu isi URL proyek dan publishable key pada <strong>konfigurasi.js</strong>.</p></div>
+<button id="auth-preview" type="button" class="auth-preview" hidden>Lihat tampilan web</button><button id="auth-reset" type="button" class="auth-reset" data-logout hidden>Keluar / ganti akun</button>
+</div></section>
+<div id="app-shell" hidden>
+  <a class="skip-link" href="#main-content">Langsung ke konten</a>
+  <div class="nav-scrim" id="nav-scrim" hidden></div>
+  <aside class="sidebar" id="sidebar" aria-label="Menu portal" tabindex="-1">
+    <div class="sidebar-brand">
+      <img src="ga-logo.jpg" width="212" height="62" alt="General Affair Services">
+      <button class="icon-button mobile-only" id="close-menu" type="button" aria-label="Tutup menu"><span data-icon="close"></span></button>
+    </div>
+    <div class="workspace-name"><strong>Portal GA</strong><span>Camp &amp; Facility</span></div>
+    <div class="nav-label">MENU UTAMA</div>
+    <nav class="main-nav" aria-label="Navigasi utama">
+      <a class="nav-item" href="#link-kerja" data-route="link-kerja"><span data-icon="grid"></span><span>Link Kerja</span></a>
+      <a class="nav-item active" href="#tracking" data-route="tracking" aria-current="page"><span data-icon="files"></span><span>Tracking Dokumen</span></a>
+      <a class="nav-item" href="#agenda" data-route="agenda"><span data-icon="clock"></span><span data-agenda-label>Tamu &amp; Catatan</span></a>
+      <a class="nav-item" href="#karyawan" data-route="karyawan"><span data-icon="users"></span><span>Data Karyawan</span></a>
+      <a class="nav-item" href="#ht-hp" data-route="ht-hp"><span data-icon="monitor"></span><span>Data Perangkat</span></a>
+      <a class="nav-item" href="#cuti" data-route="cuti" data-writer-menu><span data-icon="clock"></span><span>Tahunan &amp; Extra</span></a>
+      <a class="nav-item" href="#mess" data-route="mess"><span data-icon="building"></span><span>Update Data Mess</span></a>
+      <a class="nav-item" href="#stok" data-route="stok"><span data-icon="box"></span><span>Stok Barang &amp; Opname</span></a>
+    </nav>
+    <div class="sidebar-foot"><time class="sidebar-today" id="today"></time><small>General Affair Services · HKOC</small></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <div class="topbar-left"><button class="icon-button mobile-only" id="open-menu" type="button" aria-label="Buka menu utama" aria-expanded="false" aria-controls="sidebar"><span data-icon="menu"></span></button><strong id="page-label">Tracking Dokumen</strong></div>
+      <div class="topbar-right"><button type="button" class="icon-button portal-theme-toggle" data-theme-toggle aria-label="Gunakan mode gelap" title="Gunakan mode gelap"></button><div class="account-menu-shell" id="account-menu-shell">
+          <button type="button" class="account-menu-toggle" id="account-menu-toggle" aria-label="Buka menu akun" aria-haspopup="menu" aria-expanded="false" aria-controls="account-menu" title="Menu akun" disabled>
+            <span class="account-avatar" data-account-avatar aria-hidden="true">GA</span>
+          </button>
+          <div class="account-menu" id="account-menu" role="menu" aria-labelledby="account-menu-toggle" aria-hidden="true" inert>
+            <div class="account-menu-person" role="none"><strong data-current-user></strong><span data-current-role></span></div>
+            <div class="account-menu-caption" role="none">Pengaturan akun</div>
+            <button type="button" class="account-menu-item" role="menuitem" tabindex="-1" data-open-profile data-profile-section="profile" aria-controls="ga-panel-profile">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/></svg>
+              <span>Profil Saya</span>
+            </button>
+            <button type="button" class="account-menu-item" role="menuitem" tabindex="-1" data-open-profile data-profile-section="password" aria-controls="ga-panel-password">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+              <span>Ganti Kata Sandi</span>
+            </button>
+            <button type="button" class="account-menu-item" role="menuitem" tabindex="-1" data-open-profile data-profile-section="users" data-super-admin aria-controls="ga-panel-users" hidden>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M17 4a3 3 0 0 1 0 6M18 14a4 4 0 0 1 3 4v2"/></svg>
+              <span>Hak Akses</span>
+            </button>
+            <button type="button" class="account-menu-item" role="menuitem" tabindex="-1" data-open-profile data-profile-section="offices" data-administrator aria-controls="ga-panel-offices" hidden>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5l8-3 8 3v16M9 21v-7h6v7M8 7h1M15 7h1M8 10h1M15 10h1M2 21h20"/></svg>
+              <span>Kelola Office</span>
+            </button>
+            <button type="button" class="account-menu-item" role="menuitem" tabindex="-1" data-open-profile data-profile-section="download" aria-controls="ga-panel-download" hidden>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg>
+              <span>Download</span>
+            </button>
+            <div class="account-menu-divider" role="separator" aria-orientation="horizontal"></div>
+            <button type="button" class="account-menu-item account-menu-logout" role="menuitem" tabindex="-1" data-logout>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17v3H4V4h6v3M9 12h12m-4-4 4 4-4 4"/></svg>
+              <span>Keluar</span>
+            </button>
+          </div>
+        </div></div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <section class="tracking-page" id="tracking-page" aria-labelledby="tracking-title">
+        <div class="page-heading"><div><p class="page-kicker">ADMINISTRASI</p><h1 id="tracking-title">Tracking dokumen</h1><p class="page-description" id="tracking-description">Pantau posisi dokumen dan setiap perpindahannya.</p></div><div id="tracking-input-options" data-tulis><div class="ti-mode-switch" role="group" aria-label="Cara input dokumen"><button type="button" id="tracking-mode-form" aria-pressed="true">Form</button><button type="button" id="tracking-mode-excel" aria-pressed="false">Excel</button></div><button class="button button-primary" id="tracking-add-document" type="button" data-action="new-document"><span data-icon="plus"></span><span>Tambah Dokumen</span></button></div><button data-tulis class="button button-primary" id="tracking-add-skc" type="button" data-skc-action="new" hidden><span data-icon="plus"></span>Tambah SKC</button></div>
+        <div class="preview-notice" data-preview-notice hidden><span data-icon="info"></span><p>Pratinjau tampilan. Login dan penyimpanan aktif setelah proyek Supabase baru dihubungkan.</p></div>
+        <section class="stats" id="document-stats" aria-label="Ringkasan dokumen">
+          <div class="stat"><div class="stat-top"><span>Dokumen aktif</span><span data-icon="files"></span></div><strong id="stat-active">0</strong></div>
+          <div class="stat"><div class="stat-top"><span>Menunggu approval</span><span data-icon="clock"></span></div><strong id="stat-approval">0</strong></div>
+          <div class="stat"><div class="stat-top"><span>Tertahan &gt; 3 hari</span><span data-icon="alert"></span></div><strong id="stat-overdue">0</strong></div>
+          <div class="stat"><div class="stat-top"><span>Dokumen selesai</span><span data-icon="check-circle"></span></div><strong id="stat-done">0</strong></div>
+        </section>
+        <section class="documents-panel" aria-label="Dokumen dan pengambilan SKC">
+          <div class="panel-tabs-row"><div class="document-tabs" role="tablist" aria-label="Kelompok dokumen"><button id="tab-active" class="document-tab active" role="tab" aria-selected="true" aria-controls="document-results" type="button" data-tab="active">Aktif <span id="active-count">0</span></button><button id="tab-done" class="document-tab" role="tab" aria-selected="false" aria-controls="document-results" tabindex="-1" type="button" data-tab="done">Selesai <span id="done-count">0</span></button><button id="tab-skc" class="document-tab" role="tab" aria-selected="false" aria-controls="skc-panel" tabindex="-1" type="button" data-tab="skc">Ambil SKC <span id="skc-count">0</span></button></div><div class="tracking-list-actions"><span class="list-caption" id="tracking-list-caption">Daftar dokumen</span><button class="button button-secondary" id="download-active-pdf" type="button" disabled><span data-icon="download"></span><span id="download-pdf-label">Unduh PDF</span></button></div></div>
+          <div class="filter-bar" id="document-filters"><div class="search-field"><span data-icon="search"></span><label class="sr-only" for="search">Cari dokumen</label><input id="search" type="search" placeholder="Cari nama, nomor, atau posisi dokumen…" autocomplete="off"></div><div class="filter-select"><label class="sr-only" for="filter-bu">Filter BU</label><select id="filter-bu"><option value="">Semua BU</option><option>KPS</option><option>HJF</option><option>OST</option><option>Lainnya</option></select></div><div class="filter-select"><label class="sr-only" for="filter-status">Filter status</label><select id="filter-status"><option value="">Semua status</option></select></div><div class="filter-select"><label for="filter-office">Office</label><select id="filter-office"><option value="">Semua office</option></select></div><div class="filter-select"><label for="filter-from">Dari tanggal</label><input id="filter-from" type="date"></div><div class="filter-select"><label for="filter-to">Sampai tanggal</label><input id="filter-to" type="date"></div></div>
+          <p id="filter-date-error" class="form-error" role="alert" hidden>Tanggal awal tidak boleh setelah tanggal akhir.</p><p class="form-error" id="tracking-office-notice" role="status" hidden></p><div id="document-results" role="tabpanel" aria-labelledby="tab-active" tabindex="0"><div class="empty-state"><span class="empty-symbol" data-icon="files"></span><h2>Belum ada dokumen aktif</h2><p>Tambahkan dokumen untuk mulai mencatat perjalanan approval.</p><button class="button button-secondary" type="button" data-action="new-document"><span data-icon="plus"></span>Tambah Dokumen</button></div></div>
+          <footer class="table-footer" id="document-footer"><span id="result-count" role="status" aria-live="polite">0 dokumen</span><div class="pagination" id="document-pagination" hidden></div></footer><p id="download-pdf-status" class="export-status" role="status" aria-live="polite" hidden></p>
+          <div id="skc-panel" role="tabpanel" aria-labelledby="tab-skc" hidden>
+            <div class="skc-panel-heading"><h2>Pengambilan SKC</h2><p>Surat keterangan cuti karyawan</p></div>
+            <div class="skc-status-tabs" role="tablist" aria-label="Status pengambilan SKC"><button id="skc-tab-pending" type="button" role="tab" aria-selected="true" aria-controls="skc-results" class="skc-status-tab active" data-skc-tab="pending">Belum diambil <span id="skc-pending-count">0</span></button><button id="skc-tab-taken" type="button" role="tab" aria-selected="false" aria-controls="skc-results" tabindex="-1" class="skc-status-tab" data-skc-tab="taken">Sudah diambil <span id="skc-taken-count">0</span></button></div>
+            <div id="skc-results" role="tabpanel" aria-labelledby="skc-tab-pending" tabindex="0"><div class="empty-state"><span class="empty-symbol" data-icon="file"></span><h2>Belum ada data SKC</h2><p>Tambahkan karyawan dan tanggal cuti untuk mencatat pengambilan SKC.</p><button type="button" class="button button-secondary" data-skc-action="new"><span data-icon="plus"></span>Tambah SKC</button></div></div>
+            <footer class="table-footer"><span id="skc-result-count" role="status" aria-live="polite">0 SKC belum diambil</span></footer>
+          </div>
+        </section>
+      </section>
+      <section class="tracking-page employees-page" id="employees-page" aria-labelledby="employees-title" hidden>
+        <div class="page-heading"><div><p class="page-kicker">DIREKTORI</p><h1 id="employees-title">Data karyawan</h1><p class="page-description">Daftar karyawan untuk serah terima perangkat dan pengambilan SKC.</p></div><div class="heading-actions"><button class="button button-secondary" type="button" data-manage-jobs data-super-admin hidden>Kelola Jabatan</button><button class="button button-primary" type="button" data-employee-action="new"><span data-icon="plus"></span>Tambah Karyawan</button></div></div>
+        <div class="preview-notice" data-preview-notice hidden><span data-icon="info"></span><p>Pratinjau tampilan. Login dan penyimpanan aktif setelah proyek Supabase baru dihubungkan.</p></div>
+        <div class="employee-toolbar"><div class="search-field"><span data-icon="search"></span><label class="sr-only" for="employee-search">Cari nama, NIK, atau jabatan karyawan</label><input id="employee-search" type="search" placeholder="Cari nama, NIK, atau jabatan…" autocomplete="off"></div><div class="filter-select"><label for="employee-active-filter">Status data</label><select id="employee-active-filter"><option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option></select></div><div class="employee-view-switch" role="group" aria-label="Tampilan karyawan"><button type="button" data-employee-view="kartu" aria-pressed="true">Kartu</button><button type="button" data-employee-view="daftar" aria-pressed="false">Daftar</button></div><span id="employee-result-count" role="status" aria-live="polite">0 karyawan</span></div>
+        <div id="employee-results"><div class="empty-state"><span class="empty-symbol" data-icon="users"></span><h2>Belum ada karyawan</h2><p>Daftarkan karyawan sekali, lalu pilih namanya saat serah terima perangkat.</p><button class="button button-secondary" type="button" data-employee-action="new"><span data-icon="plus"></span>Tambah Karyawan</button></div></div>
+      </section>
+      <section class="tracking-page devices-page" id="devices-page" aria-labelledby="devices-title" hidden>
+        <div class="page-heading"><div><p class="page-kicker">PERANGKAT PERUSAHAAN</p><h1 id="devices-title">Data Perangkat</h1><p class="page-description">Pemegang perangkat dan riwayat serah terima dalam satu tempat.</p></div><button class="button button-primary" type="button" data-device-action="new"><span data-icon="plus"></span>Tambah Perangkat</button></div>
+        <div class="preview-notice" data-preview-notice hidden><span data-icon="info"></span><p>Pratinjau tampilan. Login dan penyimpanan aktif setelah proyek Supabase baru dihubungkan.</p></div>
+        <section class="documents-panel" aria-label="Daftar perangkat">
+          <div class="device-panel-head"><h2>Daftar perangkat</h2><span id="device-summary">0 HT · 0 HP · 0 PC · 0 Printer</span></div>
+          <div class="filter-bar"><div class="search-field"><span data-icon="search"></span><label class="sr-only" for="device-search">Cari perangkat</label><input id="device-search" type="search" placeholder="Cari nomor seri, merek, NIK, atau pemegang…" autocomplete="off"></div><div class="filter-select"><label class="sr-only" for="device-kind-filter">Filter jenis perangkat</label><select id="device-kind-filter"><option value="">Semua jenis</option><option>HT</option><option>HP</option><option>PC</option><option>Printer</option></select></div><div class="filter-select"><label for="device-active-filter">Status data</label><select id="device-active-filter"><option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option></select></div></div>
+          <div id="device-results"><div class="empty-state"><span class="empty-symbol" data-icon="phone"></span><h2>Belum ada perangkat</h2><p>Tambahkan perangkat untuk mencatat pemegang dan riwayatnya.</p><button class="button button-secondary" type="button" data-device-action="new"><span data-icon="plus"></span>Tambah Perangkat</button></div></div>
+          <footer class="table-footer"><span id="device-result-count" role="status" aria-live="polite">0 perangkat</span><span class="table-tip">Riwayat dan bukti disimpan per perangkat</span></footer>
+        </section>
+        <div class="device-form-links"><span>Form serah terima HT / HP</span><a class="device-external-link" data-device-resource="form" target="_blank" rel="noopener noreferrer">Google Form <span aria-hidden="true">↗</span></a><a class="device-external-link" data-device-resource="responses" target="_blank" rel="noopener noreferrer">Spreadsheet respons <span aria-hidden="true">↗</span></a></div>
+      </section>
+<section class="tracking-page" id="mess-admin-page" hidden aria-labelledby="mess-admin-title">
+<div class="page-heading"><div><p class="page-kicker">DATA HUNIAN</p><h1 id="mess-admin-title">Update data mess</h1><p class="page-description">Perbarui daftar hunian untuk web pencarian mess.</p></div><a class="button button-secondary" href="https://gaskps.github.io/Mess-Karyawan/" target="_blank" rel="noopener noreferrer">Buka web mess ↗</a></div>
+<div class="preview-notice" data-preview-notice hidden><span data-icon="info"></span><p>Pratinjau tampilan. Hubungkan Supabase untuk mengimpor data.</p></div>
+<div class="mess-summary"><div><span>Pembaruan terakhir</span><strong id="mess-last-update">Belum ada pembaruan</strong></div><div><span>Baris data hunian</span><strong id="mess-row-count">0</strong></div><div><span>Diperbarui oleh</span><strong id="mess-last-actor">—</strong></div></div>
+<section class="documents-panel mess-upload" data-tulis><div class="mess-upload-head"><h2>Unggah daftar hunian</h2><p>Excel atau CSV dengan judul kolom pada baris pertama.</p></div><div class="mess-upload-body">
+<label class="mess-file-label" for="mess-file">Pilih file Excel / CSV</label><input id="mess-file" type="file" accept=".xlsx,.xls,.csv"><small>Maksimal 20 MB. Data master karyawan portal tetap terpisah.</small>
+<div id="mess-mapping-panel" hidden><div class="mess-step-heading"><h3>Cocokkan kolom</h3><span id="mess-file-summary"></span></div><p>Setiap isian boleh kosong dan baris duplikat tetap diterima. Baris yang seluruhnya kosong dilewati. Pilih “Tidak ada kolom” jika tidak tersedia. Tanggal Masuk Hunian mengikuti tulisan atau tanggal yang tampil di Excel.</p><div class="mess-mapping-grid" id="mess-mapping"></div><h3>Periksa data</h3><p id="mess-validation" role="status"></p><div id="mess-preview" class="table-scroll"></div>
+<label class="mess-confirm"><input type="checkbox" id="mess-confirm"> <span>Saya sudah memeriksa file. Ganti seluruh daftar hunian mess dengan data ini.</span></label><button id="mess-publish" type="button" class="button button-primary" disabled>Simpan pembaruan mess</button><button id="mess-reset" type="button" class="button button-secondary">Ganti file</button></div>
+<progress id="mess-progress" hidden max="100" value="0"></progress><p id="mess-upload-status" role="status" aria-live="polite"></p><p id="mess-upload-error" class="form-error" role="alert" hidden></p>
+</div></section><section class="documents-panel mess-audit" data-administrator hidden><div class="mess-upload-head"><div><h2>Pencarian mess · 24 jam terakhir</h2><p>Hanya terlihat oleh Administrator.</p></div><button type="button" class="button button-secondary" id="mess-log-refresh">Muat ulang</button></div><div id="mess-log-results"></div><div class="table-footer"><span id="mess-log-count"></span><button id="mess-log-more" class="button button-secondary" type="button" hidden>Muat berikutnya</button></div></section>
+</section>
+      <section class="tracking-page" id="agenda-page" hidden></section>
+      <section class="tracking-page cuti-page" id="cuti-page" hidden></section>
+      <section class="tracking-page stok-page" id="stok-page" hidden aria-label="Stok Barang dan Opname"></section>
+      <section class="tracking-page" id="profile-page" aria-label="Profil dan Pengaturan" hidden></section>
+      <section id="links-page" class="links-page" aria-label="Link Kerja" hidden><iframe id="links-frame" title="Link Kerja GA Services" src="link-kerja.html?v=15" loading="lazy"></iframe></section>
+    </main>
+  </div>
+
+<dialog class="form-dialog" id="skc-ht-dialog" aria-labelledby="skc-ht-title"><div class="dialog-heading"><div><p class="dialog-kicker">SEBELUM PENGAMBILAN SKC</p><h2 id="skc-ht-title">Karyawan masih tercatat memegang HT</h2></div><button class="icon-button" type="button" data-close="skc-ht-dialog" aria-label="Tutup pemeriksaan HT"><span data-icon="close"></span></button></div><div class="form-body"><p id="skc-ht-person"></p><p>HT berikut masih tercatat pada karyawan ini. Periksa apakah HT sudah dikembalikan. Pengambilan SKC tetap dapat dilanjutkan tanpa mengisi form serah terima.</p><div id="skc-ht-list" class="skc-ht-list"></div><p class="form-error" id="skc-ht-error" role="alert" hidden></p></div><div class="dialog-actions"><button type="button" class="button button-secondary" data-close="skc-ht-dialog">Batal</button><button type="button" class="button button-primary" id="skc-ht-continue">Lanjut tandai SKC diambil</button></div></dialog>
+  <dialog class="form-dialog" id="skc-dialog" aria-labelledby="skc-form-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker">SURAT KETERANGAN CUTI</p><h2 id="skc-form-title">Tambah SKC</h2></div><button class="icon-button" type="button" data-close="skc-dialog" aria-label="Tutup formulir SKC"><span data-icon="close"></span></button></div>
+    <form id="skc-form"><div class="form-body"><p class="form-intro">Kolom bertanda <span class="required">*</span> wajib diisi.</p><div class="form-grid">
+      <div class="field span-two" id="skc-employee-picker"></div>
+      <div class="field span-two"><label for="skc-leave-date">Tanggal cuti <span class="required">*</span></label><input id="skc-leave-date" name="tanggalCuti" type="date" required></div>
+      <div class="field span-two note-field"><label for="skc-form-link">Link Google Drive Form Cuti <span class="optional">opsional</span></label><input id="skc-form-link" name="formCutiUrl" type="url" inputmode="url" maxlength="3000" autocomplete="off" spellcheck="false" placeholder="https://drive.google.com/…"></div>
+      <div class="field span-two"><label for="skc-exit-link">Link Google Drive Exit <span class="optional">opsional</span></label><input id="skc-exit-link" name="exitUrl" type="url" inputmode="url" maxlength="3000" autocomplete="off" spellcheck="false" placeholder="https://drive.google.com/…"><small>Kedua link boleh kosong. Pengambilan SKC tetap bisa dicatat.</small></div>
+    </div><p class="form-error" id="skc-form-error" role="alert" hidden></p></div><div class="dialog-actions"><button type="button" class="button button-secondary" data-close="skc-dialog">Batal</button><button type="submit" class="button button-primary">Simpan SKC</button></div></form>
+  </dialog>
+
+  <dialog class="form-dialog skc-collect-dialog" id="skc-collect-dialog" aria-labelledby="skc-collect-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker">PENGAMBILAN SKC</p><h2 id="skc-collect-title">Tandai sudah diambil?</h2></div><button class="icon-button" type="button" data-close="skc-collect-dialog" aria-label="Tutup pengambilan SKC"><span data-icon="close"></span></button></div>
+    <form id="skc-collect-form"><div class="form-body"><p class="actor-line">Petugas pencatat <strong data-current-user></strong></p><div class="selected-document"><span data-icon="user"></span><div><strong id="skc-collect-name"></strong><small id="skc-collect-nik"></small></div></div><p class="skc-collect-date">Tanggal cuti: <strong id="skc-collect-date"></strong></p><p class="skc-collect-description">Simpan setelah SKC diserahkan kepada karyawan. Data akan masuk ke daftar Sudah diambil.</p><p class="form-error" id="skc-collect-error" role="alert" hidden></p></div><div class="dialog-actions"><button type="button" class="button button-secondary" data-close="skc-collect-dialog">Batal</button><button type="submit" class="button button-primary">Tandai Sudah Diambil</button></div></form>
+  </dialog>
+
+  <dialog class="photo-dialog" id="employee-photo-dialog" aria-labelledby="employee-photo-large-title"><div class="dialog-heading"><h2 id="employee-photo-large-title">Foto karyawan</h2><button class="icon-button" type="button" data-close="employee-photo-dialog" aria-label="Tutup foto karyawan"><span data-icon="close"></span></button></div><div class="photo-dialog-body"><img id="employee-photo-large" class="photo-dialog-image" alt="Foto karyawan"></div></dialog>
+
+  <dialog class="form-dialog employee-detail-dialog" id="employee-detail-dialog" aria-labelledby="employee-detail-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker">DATA KARYAWAN</p><h2 id="employee-detail-title">Detail karyawan</h2></div><button class="icon-button" type="button" data-close="employee-detail-dialog" aria-label="Tutup detail karyawan"><span data-icon="close"></span></button></div>
+    <div class="form-body" id="employee-detail-content" aria-live="polite"></div>
+    <div class="dialog-actions"><button class="button button-secondary" type="button" data-close="employee-detail-dialog">Tutup</button><button class="button button-primary" type="button" id="employee-detail-edit" data-master hidden><span data-icon="edit"></span>Edit Data Karyawan</button></div>
+  </dialog>
+
+  <dialog class="form-dialog" id="employee-dialog" aria-labelledby="employee-form-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker" id="employee-form-kicker">KARYAWAN BARU</p><h2 id="employee-form-title">Tambah karyawan</h2></div><button class="icon-button" type="button" data-close="employee-dialog" aria-label="Tutup formulir karyawan"><span data-icon="close"></span></button></div>
+    <form id="employee-form"><div class="form-body"><p class="form-intro">Kolom bertanda <span class="required">*</span> wajib diisi.</p>
+      <div class="employee-photo-field"><span class="employee-avatar" id="employee-photo-preview" aria-hidden="true"><span data-icon="user"></span></span><div class="employee-photo-controls"><label for="employee-photo">Foto karyawan <span class="optional">opsional</span></label><input type="file" id="employee-photo" accept="image/jpeg,image/png,image/webp" aria-describedby="employee-photo-hint"><small id="employee-photo-hint">JPG, PNG, atau WebP. Foto dikompres otomatis, maksimal unggahan 12 MB.</small><button class="button button-text" type="button" id="employee-photo-remove" hidden>Hapus foto pilihan</button><small id="employee-photo-status" role="status" aria-live="polite"></small></div></div>
+      <div class="form-grid">
+        <div class="field"><label for="employee-nik">NIK <span class="required">*</span></label><input id="employee-nik" name="nik" required maxlength="40" autocomplete="off" spellcheck="false"><small>Gunakan NIK yang tercatat di perusahaan.</small></div>
+        <div class="field"><label for="employee-name">Nama karyawan <span class="required">*</span></label><input id="employee-name" name="nama" required maxlength="150" autocomplete="off"></div>
+        <div class="field"><label for="employee-job">Jabatan <span class="required">*</span></label><select id="employee-job" name="jabatanId" required><option value="">Pilih jabatan</option></select><button type="button" class="button button-text field-add-job" data-manage-jobs data-super-admin hidden>+ Tambah jabatan</button></div>
+        <div class="field"><label for="employee-effective">Tanggal Efektif Kerja <span class="optional">opsional</span></label><input id="employee-effective" name="tanggalEfektifKerja" type="date" min="1900-01-01" aria-describedby="employee-effective-help"><small id="employee-effective-help">Acuan periode Tahunan. Saldo awal diatur Administrator melalui Tahunan &amp; Extra.</small></div>
+        <div class="field"><label for="employee-grade">Golongan <span class="optional">opsional</span></label><input id="employee-grade" name="golongan" maxlength="40" autocomplete="off"></div>
+        <div class="field"><label for="employee-phone">Nomor HP <span class="optional">opsional</span></label><input id="employee-phone" name="noHp" type="tel" maxlength="40" autocomplete="off"></div>
+        <div class="field"><label for="employee-room">Kamar mess <span class="optional">opsional</span></label><input id="employee-room" name="kamarMess" maxlength="100" autocomplete="off"></div>
+      </div><p class="form-error" id="employee-form-error" role="alert" hidden></p>
+    </div><div class="dialog-actions"><button class="button button-secondary" type="button" data-close="employee-dialog">Batal</button><button class="button button-primary" id="employee-save" type="submit">Simpan Karyawan</button></div></form>
+  </dialog>
+
+  <dialog class="form-dialog" id="document-dialog" aria-labelledby="document-dialog-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker" id="document-form-kicker">DOKUMEN BARU</p><h2 id="document-dialog-title">Tambah dokumen</h2></div><button type="button" class="icon-button" data-close="document-dialog" aria-label="Tutup formulir"><span data-icon="close"></span></button></div>
+    <form id="document-form">
+      <div class="form-body"><p class="actor-line">Petugas pencatat <strong data-current-user></strong></p><p class="form-intro">Kolom bertanda <span class="required">*</span> wajib diisi.</p>
+        <div class="form-grid">
+          <div class="field span-two"><label for="doc-name">Nama / perihal dokumen <span class="required">*</span></label><input id="doc-name" name="namaDokumen" required maxlength="240" autocomplete="off"></div>
+          <div class="field"><label for="doc-date">Tanggal masuk <span class="required">*</span></label><input id="doc-date" type="date" name="tanggalMasuk" required></div>
+          <div class="field"><label for="doc-bu">BU <span class="required">*</span></label><select id="doc-bu" name="bu" required><option value="">Pilih BU</option><option>KPS</option><option>HJF</option><option>OST</option><option>Lainnya</option></select></div>
+          <div class="field"><label for="doc-type">Jenis dokumen <span class="required">*</span></label><select id="doc-type" name="jenisDokumen" required><option value="">Pilih jenis dokumen</option><option>FORM</option><option>EM</option><option>IM</option><option>Lainnya</option></select></div>
+          <div class="field"><label for="doc-number">Nomor dokumen <span class="optional">opsional</span></label><input id="doc-number" name="nomorDokumen" maxlength="100" autocomplete="off"><small>Boleh kosong jika dokumen tidak memiliki nomor.</small></div>
+          <div class="field span-two" id="other-type-field" hidden><label for="doc-other-type">Jenis dokumen lainnya <span class="required">*</span></label><input id="doc-other-type" name="jenisDokumenLainnya" maxlength="100" disabled></div>
+          <div class="field span-two"><label for="doc-source">Office <span class="required">*</span></label><select id="doc-source" name="officeId" required><option value="">Pilih office</option></select><small id="doc-source-help">Office dokumen.</small></div>
+          <div class="field span-two note-field"><label for="doc-note">Note dokumen <span class="optional">opsional</span></label><textarea id="doc-note" name="noteDokumen" rows="3" maxlength="3000"></textarea><small>Komentar atau keterangan mengenai dokumen.</small></div>
+        </div><p class="form-error" id="document-error" role="alert" hidden></p>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button button-secondary" data-close="document-dialog">Batal</button><button type="submit" id="document-save" class="button button-primary">Simpan Dokumen</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="detail-dialog" id="detail-dialog" aria-labelledby="detail-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker" id="detail-id"></p><h2 id="detail-title">Detail dokumen</h2></div><button class="icon-button" type="button" data-close="detail-dialog" aria-label="Tutup detail dokumen"><span data-icon="close"></span></button></div>
+    <div class="detail-body"><p class="edit-success" id="document-edit-success" role="status" hidden>Data dokumen berhasil diperbarui.</p><div class="detail-status-bar"><span id="detail-status"></span><span class="held-label" id="detail-held"></span></div><section class="current-position" aria-label="Posisi terkini"><span class="position-icon" data-icon="user"></span><div><span>Pemegang saat ini</span><strong id="detail-position"></strong></div></section><div id="detail-fields" class="detail-fields"></div><section class="detail-note"><h3>Note dokumen</h3><p id="detail-note"></p></section><div class="history-heading"><h3>Riwayat perpindahan</h3><span id="history-count"></span></div><div id="history"></div><div class="pagination history-pagination" id="history-pagination" hidden></div></div>
+    <div class="detail-actions document-detail-actions"><button class="button button-secondary" id="edit-document" data-tulis type="button"><span data-icon="edit"></span>Edit Dokumen</button><button class="button button-primary" id="new-movement" data-tulis type="button"><span data-icon="route"></span>Catat Perpindahan</button><p id="completed-message" hidden>Dokumen ini sudah masuk daftar selesai.</p></div>
+  </dialog>
+
+  <dialog class="form-dialog movement-dialog" id="movement-dialog" aria-labelledby="movement-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker">PERPINDAHAN DOKUMEN</p><h2 id="movement-title">Catat perpindahan</h2></div><button type="button" class="icon-button" data-close="movement-dialog" aria-label="Tutup formulir perpindahan"><span data-icon="close"></span></button></div>
+    <form id="movement-form"><div class="form-body"><p class="actor-line">Petugas pencatat <strong data-current-user></strong></p><div class="selected-document"><span data-icon="file"></span><div><strong id="movement-doc-name"></strong><small id="movement-doc-id"></small></div></div><div class="form-grid">
+      <div class="field"><label for="move-date">Tanggal perpindahan <span class="required">*</span></label><input type="date" id="move-date" name="tanggalPerpindahan" required></div>
+      <div class="field"><label for="move-from">Dicatat oleh <span class="required">*</span></label><input id="move-from" name="dari" readonly data-actor-input required maxlength="140"></div>
+      <div class="field span-two"><label for="move-to">Diserahkan kepada <span class="required">*</span></label><input id="move-to" name="kepada" required maxlength="140" autocomplete="off"></div>
+      <div class="field span-two"><label for="move-status">Status dokumen <span class="required">*</span></label><select id="move-status" name="status" required><option value="">Pilih status</option></select></div>
+      <div class="field span-two note-field"><label for="move-note">Note perpindahan <span class="optional">opsional</span></label><textarea id="move-note" name="notePerpindahan" rows="3" maxlength="3000"></textarea></div>
+    </div><p class="form-error" id="movement-error" role="alert" hidden></p></div><div class="dialog-actions"><button type="button" class="button button-secondary" data-close="movement-dialog">Batal</button><button type="submit" class="button button-primary">Simpan Perpindahan</button></div></form>
+  </dialog>
+  <dialog class="form-dialog" id="device-dialog" aria-labelledby="device-form-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker" id="device-form-kicker">PERANGKAT BARU</p><h2 id="device-form-title">Tambah perangkat</h2></div><button class="icon-button" type="button" data-close="device-dialog" aria-label="Tutup formulir perangkat"><span data-icon="close"></span></button></div>
+    <form id="device-form"><div class="form-body"><p class="form-intro">Kolom bertanda <span class="required">*</span> wajib diisi.</p><p class="form-intro" id="device-edit-hint" hidden>Perubahan pemegang dicatat melalui Serah Terima.</p><div class="form-grid">
+      <div class="field"><label for="device-kind">Jenis perangkat <span class="required">*</span></label><select id="device-kind" name="jenis" required><option value="">Pilih jenis</option><option value="HT">HT — Handy Talky</option><option value="HP">HP — Handphone</option><option value="PC">PC</option><option value="Printer">Printer</option></select></div>
+      <div class="field"><label for="device-serial">Nomor seri / aset / IMEI <span class="required">*</span></label><input id="device-serial" name="nomor" maxlength="80" required autocomplete="off" spellcheck="false"><small>Identitas unik perangkat. Angka nol di depan tetap disimpan.</small></div>
+      <div class="field"><label for="device-brand">Merek / tipe <span class="required">*</span></label><input id="device-brand" name="merek" maxlength="150" required autocomplete="off"></div>
+      <div class="field"><label for="device-condition">Kondisi saat ini <span class="required">*</span></label><select id="device-condition" name="kondisi" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select></div>
+      <div class="field span-two note-field" id="device-holder-picker"></div>
+    </div><p class="form-error" id="device-form-error" role="alert" hidden></p></div><div class="dialog-actions"><button class="button button-secondary" type="button" data-close="device-dialog">Batal</button><button class="button button-primary" id="device-save" type="submit">Simpan Perangkat</button></div></form>
+  </dialog>
+
+  <dialog class="detail-dialog" id="device-history-dialog" aria-labelledby="device-history-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker" id="device-history-kind"></p><h2 id="device-history-title">Riwayat perangkat</h2><p class="device-subtitle" id="device-history-brand"></p></div><button class="icon-button" type="button" data-close="device-history-dialog" aria-label="Tutup riwayat perangkat"><span data-icon="close"></span></button></div>
+    <div class="detail-body"><div class="device-success" id="device-history-success" role="status" hidden></div><section class="device-holder-card" aria-label="Pemegang saat ini"><span class="position-icon" data-icon="user"></span><div><span class="holder-caption">PEMEGANG SAAT INI</span><strong id="device-history-holder"></strong><small id="device-history-nik"></small></div><span id="device-history-condition"></span></section><div class="device-initial-holder"><span>Pemegang saat pertama dicatat</span><strong id="device-initial-holder"></strong></div><div class="history-heading"><h3>Riwayat serah terima</h3><span id="device-history-count"></span></div><div id="device-history-events"></div><div class="pagination history-pagination" id="device-history-pagination" hidden></div></div>
+    <div class="detail-actions"><button class="button button-primary" id="device-history-transfer" data-tulis type="button"><span data-icon="route"></span>Serah Terima</button></div>
+  </dialog>
+
+  <dialog class="form-dialog" id="handover-dialog" aria-labelledby="handover-title">
+    <div class="dialog-heading"><div><p class="dialog-kicker" id="handover-kind">SERAH TERIMA PERANGKAT</p><h2 id="handover-title">Serah terima</h2><p class="device-subtitle" id="handover-brand"></p></div><button class="icon-button" type="button" data-close="handover-dialog" aria-label="Tutup formulir serah terima"><span data-icon="close"></span></button></div>
+    <form id="handover-form"><div class="form-body"><p class="actor-line">Petugas pencatat <strong data-current-user></strong></p><section class="device-holder-card" aria-label="Pemegang asal"><span class="position-icon" data-icon="user"></span><div><span class="holder-caption">DARI / PEMEGANG SAAT INI</span><strong id="handover-from-name"></strong><small id="handover-from-nik"></small></div><span id="handover-from-condition"></span></section><div class="device-transfer-direction"><span data-icon="arrow"></span><span>Diserahkan kepada</span></div><div class="form-grid">
+      <div class="field span-two" id="handover-recipient-picker"></div>
+      <div class="field"><label for="handover-date">Tanggal serah terima <span class="required">*</span></label><input type="date" id="handover-date" name="tanggal" required></div>
+      <div class="field"><label for="handover-condition">Kondisi saat serah terima <span class="required">*</span></label><select id="handover-condition" name="kondisi" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select></div>
+      <div class="field span-two device-proof-field"><label for="handover-proof">Link Google Drive <span class="optional">opsional</span></label><input id="handover-proof" name="buktiUrl" type="url" inputmode="url" maxlength="3000" spellcheck="false" autocomplete="off" placeholder="https://drive.google.com/…"><small>Tempel tautan foto bukti dari hasil respons Google Form jika tersedia. Boleh kosong.</small><div class="device-proof-links"><a data-device-resource="form" target="_blank" rel="noopener noreferrer">Buka Google Form <span aria-hidden="true">↗</span></a><a data-device-resource="responses" target="_blank" rel="noopener noreferrer">Lihat respons <span aria-hidden="true">↗</span></a></div></div>
+      <div class="field span-two"><label for="handover-note">Catatan <span class="optional">opsional</span></label><textarea id="handover-note" name="catatan" maxlength="3000" rows="3"></textarea></div>
+    </div><p class="form-error" id="handover-error" role="alert" hidden></p></div><div class="dialog-actions"><button class="button button-secondary" type="button" data-close="handover-dialog">Batal</button><button class="button button-primary" type="submit">Simpan Serah Terima</button></div></form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</div>
+</body>
+</html>

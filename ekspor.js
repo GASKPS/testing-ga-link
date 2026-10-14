@@ -1,0 +1,107 @@
+(function(g){
+'use strict';const A=g.Akses;let pending=null,busy=false;
+function script(src,test){if(test())return Promise.resolve();return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=()=>test()?resolve():reject(new Error('Komponen unduhan belum tersedia.'));s.onerror=()=>{s.remove();reject(new Error('Komponen unduhan belum dapat dimuat. Coba lagi.'));};document.head.append(s);});}
+function ready(){if(!pending)pending=Promise.all([script('vendor/xlsx.full.min.js',()=>!!g.XLSX),script('vendor/jszip.min.js',()=>!!g.JSZip)]).catch(e=>{pending=null;throw e;});return pending;}
+const dateName=now=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jayapura',year:'numeric',month:'long',day:'2-digit'}).format(now).replace(/\s+/g,'_');
+const person=v=>v?.nama||'Admin/Gudang';
+function files(snapshot,only=[]){
+ if(snapshot?.format!=='GA_PORTAL'||snapshot.versi_format!==1||![11,14,15,21].includes(snapshot.versi_skema))throw new Error('Format ekspor belum sesuai. Pasang SQL pembaruan terbaru.');
+ const tables=['jabatan','karyawan','perangkat','serah_terima_perangkat','dokumen','perpindahan_dokumen','pengambilan_skc','tamu','catatan_admin','pengaturan_tahunan','saldo_cuti','pemakaian_cuti','potongan_cuti'];
+ if(snapshot.versi_skema>=14)tables.push('pengaturan_cuti');
+ if(snapshot.versi_skema>=15)tables.push('link_kerja');
+ if(snapshot.versi_skema>=21)tables.push('kantor');
+ const d={};for(const key of tables){if(!Array.isArray(snapshot.data?.[key]))throw new Error('Data ekspor belum lengkap: '+key);d[key]=snapshot.data[key];}
+ const employees=new Map(d.karyawan.map(k=>[k.id,k])),devices=new Map(d.perangkat.map(p=>[p.id,p])),docs=new Map(d.dokumen.map(v=>[v.id,v]));
+ const date=v=>v?{v:new Date(v+'T00:00:00Z'),t:'d',z:'[$-421]d mmmm yyyy'}:'';
+ const stamp=v=>v?new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jayapura',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(v))+' WIT':'';
+ const active=v=>v.aktif===false?'Nonaktif':'Aktif';
+ const row=(rows,cols)=>[cols.map(c=>c[0]),...rows.map(r=>cols.map(c=>{const v=typeof c[1]==='function'?c[1](r):r[c[1]];return v??'';}))];
+ const out={};
+ function book(filename,sheets){if(only.length&&!only.includes(filename))return;const wb=g.XLSX.utils.book_new();for(const [name,rows,cols] of sheets){const ws=g.XLSX.utils.aoa_to_sheet(row(rows,cols),{cellDates:true});ws['!cols']=cols.map(([label])=>({wch:/Note|catatan|Keperluan|Link/.test(label)?50:/Nama|oleh|Posisi|Pemegang/.test(label)?28:22}));ws['!autofilter']={ref:ws['!ref']};g.XLSX.utils.book_append_sheet(wb,ws,name);}out[filename]=g.XLSX.write(wb,{type:'array',bookType:'xlsx',compression:true});}
+ if(snapshot.versi_skema>=21)book('Data_Office.xlsx',[['Office',d.kantor,[['ID','id'],['Nama office','nama'],['Status',active]]]]);
+ book('Data_Karyawan.xlsx',[
+ ['Karyawan',d.karyawan,[['ID','id'],['NIK','nik'],['Nama','nama'],['Jabatan','jabatan'],['Tanggal Efektif Kerja',v=>date(v.tanggal_efektif_kerja)],['Golongan','golongan'],['Nomor HP','nomor_hp'],['Kamar mess','kamar_mess'],['Status',active],['Lokasi foto','foto_path'],['Dibuat oleh','nama_pembuat']]],
+ ['Jabatan',d.jabatan,[['ID','id'],['Nama jabatan','nama'],['Urutan','urutan']]]]);
+ book('Data_Perangkat.xlsx',[
+ ['Perangkat',d.perangkat,[['ID','id'],['Jenis','jenis'],['Nomor seri','nomor_seri'],['Merek atau tipe','merek'],['Kondisi','kondisi'],['Status',active],['Pemegang awal',v=>person(v.pemegang_awal)],['Pemegang sekarang',v=>employees.get(v.pemegang_id)?.nama||'Admin/Gudang'],['NIK pemegang',v=>employees.get(v.pemegang_id)?.nik||''],['Jumlah perpindahan','jumlah_perpindahan'],['Tanggal terakhir',v=>date(v.tanggal_serah_terima_terakhir)]]],
+ ['Riwayat',d.serah_terima_perangkat,[['ID','id'],['ID perangkat','perangkat_id'],['Nomor seri',v=>devices.get(v.perangkat_id)?.nomor_seri||''],['Urutan','urutan'],['Tanggal',v=>date(v.tanggal)],['Dari',v=>person(v.pemegang_asal)],['Kepada',v=>person(v.penerima)],['Kondisi','kondisi'],['Note','catatan'],['Link bukti','link_bukti'],['Dicatat oleh','nama_petugas'],['Waktu input',v=>stamp(v.dicatat_pada)]]]]);
+ const docCols=[['ID','id'],['Kode','kode'],['Tanggal masuk',v=>date(v.tanggal_masuk)],['Nama dokumen','nama_dokumen'],['Nomor dokumen','nomor_dokumen'],['Jenis','jenis_dokumen'],['Jenis lainnya','jenis_lainnya'],['Asal dokumen',v=>v.office_asal||'Belum ditentukan'],['Asal dari data lama','asal_dokumen'],['BU','bu'],['Status','status_terakhir'],['Posisi sekarang','posisi_sekarang'],['Note Dokumen','catatan'],['Note Perpindahan terakhir','catatan_perpindahan_terakhir'],['Dibuat oleh','nama_pembuat']];
+ const final=v=>['Sudah Diambil','Selesai','Dibatalkan'].includes(v.status_terakhir);
+ book('Tracking_Dokumen.xlsx',[
+ ['Aktif',d.dokumen.filter(v=>!final(v)),docCols],['Selesai',d.dokumen.filter(final),docCols],
+ ['Riwayat',d.perpindahan_dokumen,[['ID','id'],['ID dokumen','dokumen_id'],['Kode dokumen',v=>docs.get(v.dokumen_id)?.kode||''],['Urutan','urutan'],['Tanggal',v=>date(v.tanggal_perpindahan)],['Dari','posisi_sebelum'],['Tujuan','tujuan'],['Status','status'],['Note Perpindahan','catatan'],['Dicatat oleh','nama_petugas'],['Waktu input',v=>stamp(v.dicatat_pada)]]]]);
+ const skcCols=[['ID','id'],['NIK',v=>employees.get(v.karyawan_id)?.nik||v.nik_pengambil||''],['Nama',v=>employees.get(v.karyawan_id)?.nama||v.nama_pengambil||''],['Tanggal cuti',v=>date(v.tanggal_cuti)],['Status','status'],['Tanggal diambil',v=>date(v.tanggal_diambil)],['Nama pengambil','nama_pengambil'],['Dicatat pengambilan oleh','nama_petugas_pengambilan'],['Link Form Cuti','link_form_cuti'],['Link Exit','link_exit']];
+ const skc=[...d.pengambilan_skc].sort((a,b)=>a.tanggal_cuti.localeCompare(b.tanggal_cuti));
+ book('Data_SKC.xlsx',[['Belum diambil',skc.filter(v=>v.status==='Belum diambil'),skcCols],['Sudah diambil',skc.filter(v=>v.status==='Sudah diambil'),skcCols]]);
+ book('Tamu_dan_Catatan.xlsx',[
+ ['Tamu',d.tamu,[['ID','id'],['Nama tamu','nama'],['Jenis kunjungan','jenis'],['Jabatan','jabatan'],['Tamu dari mana','asal'],['Tanggal kedatangan',v=>date(v.tanggal_kedatangan)],['Status','status'],['Tanggal keluar',v=>date(v.tanggal_keluar)],['Keperluan','keperluan'],['Note','catatan'],['Dibuat oleh','nama_pembuat'],['Terakhir diubah oleh','nama_pengubah'],['Disimpan',v=>v.disimpan?'Ya':'Tidak'],['Disimpan oleh','nama_penyimpan'],['Tanggal simpan',v=>stamp(v.disimpan_pada)]]],
+ ['Catatan Admin',d.catatan_admin,[['ID','id'],['Jenis','jenis'],['Nama karyawan',v=>employees.get(v.karyawan_id)?.nama||v.nama_karyawan||''],['NIK',v=>employees.get(v.karyawan_id)?.nik||v.nik_karyawan||''],['Tanggal pengingat',v=>date(v.tanggal_pengingat)],['Note','catatan'],['Status','status'],['Dibuat oleh','nama_pembuat'],['Waktu input',v=>stamp(v.dibuat_pada)],['Diselesaikan oleh','nama_penyelesai'],['Waktu selesai',v=>stamp(v.diselesaikan_pada)],['Disimpan',v=>v.disimpan?'Ya':'Tidak'],['Disimpan oleh','nama_penyimpan'],['Tanggal simpan',v=>stamp(v.disimpan_pada)]]]]);
+ const used=new Map();for(const x of d.potongan_cuti)used.set(x.saldo_id,(used.get(x.saldo_id)||0)+Number(x.jumlah_hari));
+ const credits=new Map(d.saldo_cuti.map(s=>[s.id,s]));
+ book('Tahunan_dan_Extra.xlsx',[
+ ['Masa berlaku Extra',d.pengaturan_cuti||[],[['Masa berlaku (bulan)','masa_extra_bulan'],['Diubah oleh','nama_pengubah'],['Tanggal pengaturan',v=>stamp(v.diubah_pada)]]],
+ ['Pengaturan',d.pengaturan_tahunan,[['ID','id'],['ID karyawan','karyawan_id'],['Nama',v=>employees.get(v.karyawan_id)?.nama||v.nama_karyawan||''],['Tanggal mulai bekerja',v=>date(v.tanggal_mulai_kerja)],['Masa berlaku (bulan)','masa_berlaku_bulan'],['Tahun awal sistem','tahun_mulai_sistem'],['Tahun diproses terakhir','tahun_terakhir_diproses'],['Dicatat oleh','nama_pembuat']]],
+ ['Saldo per periode',d.saldo_cuti,[['ID','id'],['ID karyawan','karyawan_id'],['NIK',v=>employees.get(v.karyawan_id)?.nik||v.nik_karyawan||''],['Nama',v=>employees.get(v.karyawan_id)?.nama||v.nama_karyawan||''],['Jenis','jenis'],['Sumber','sumber'],['Tanggal perolehan',v=>date(v.tanggal_perolehan)],['Tanggal hangus',v=>date(v.tanggal_hangus)],['Jumlah diberikan','jumlah_hari'],['Terpakai',v=>used.get(v.id)||0],['Sisa periode',v=>Number(v.jumlah_hari)-(used.get(v.id)||0)],['Tahun hak','tahun_hak'],['Cuti semula',v=>date(v.tanggal_cuti_semula)],['Cuti setelah diundur',v=>date(v.tanggal_cuti_baru)],['Note','catatan'],['Pemberi awal','nama_pembuat'],['Waktu pemberian',v=>stamp(v.dibuat_pada)],['Pengubah','nama_pengubah'],['Waktu perubahan',v=>stamp(v.diubah_pada)]]],
+ ['Pemakaian dan jual',d.pemakaian_cuti,[['ID','id'],['ID karyawan','karyawan_id'],['Nama',v=>employees.get(v.karyawan_id)?.nama||v.nama_karyawan||''],['Jenis','jenis'],['Sumber saldo','sumber_saldo'],['Tanggal mulai',v=>date(v.tanggal_mulai)],['Tanggal selesai',v=>date(v.tanggal_selesai)],['Jumlah dipotong','jumlah_hari'],['Link Google Drive','link_form'],['Note','catatan'],['Dicatat oleh','nama_petugas'],['Waktu input',v=>stamp(v.dibuat_pada)]]],
+ ['Rincian potongan',d.potongan_cuti,[['ID','id'],['ID pemakaian','pemakaian_id'],['ID saldo','saldo_id'],['Jenis saldo',v=>credits.get(v.saldo_id)?.jenis||''],['Tanggal perolehan saldo',v=>date(credits.get(v.saldo_id)?.tanggal_perolehan)],['Jumlah dipotong','jumlah_hari']]]]);
+ if(d.link_kerja)book('Link_Kerja.xlsx',[['Kartu',d.link_kerja,[['ID','id'],['Kelompok','kelompok'],['Nama','nama'],['Keterangan','keterangan'],['Ikon','ikon'],['Lokasi logo','logo_path'],['Urutan','urutan'],['Link utama',v=>v.utama?'Ya':'Tidak'],['Status',active]]],['Tombol',d.link_kerja.flatMap(k=>k.tombol.map(t=>({...t,kartu:k.nama,kelompok:k.kelompok}))),[['Kelompok','kelompok'],['Nama kartu','kartu'],['Nama tombol','nama'],['Alamat link','url'],['Keterangan','keterangan'],['Kelompok tombol','grup']]]]);
+ // Explicit allowlist: housing data, search logs, account profiles and Auth are never exported.
+ out['Data_Portal_GA.json']=JSON.stringify({format:'GA_PORTAL',versi_format:1,versi_skema:snapshot.versi_skema,diekspor_pada:snapshot.diekspor_pada,zona_waktu:'Asia/Jayapura',nama_petugas:snapshot.nama_petugas,data:d},null,2);
+ out['BACA_DULU.txt']='Data operasional Portal GA, seluruh halaman dan status, pada waktu ekspor.\nData mess, riwayat pencarian, akun Auth dan foto profil akun tidak disertakan.\nJSON mempertahankan ID, relasi, jalur foto karyawan dan riwayat yang masih tersimpan. Foto lama yang belum dimigrasi masih berupa teks.\nPemulihan dilakukan melalui Supabase dengan skrip yang sesuai; tidak tersedia impor JSON di web.\nSisa periode pada Excel belum tentu tersedia: periksa tanggal hangus.\nFoto karyawan Storage disertakan dalam folder foto_karyawan saat Unduh Semua melalui web. Logo Link Kerja disertakan dalam folder logo_link_kerja. File Google Drive dan foto profil akun tidak disertakan.\n';return out;
+}
+async function build(snapshot,now=new Date(),loadPhoto=null,loadLogo=null,stock=null){
+ await ready();const zip=new g.JSZip();for(const [name,data] of Object.entries(files(snapshot)))zip.file(name,data);
+ if(stock){if(stock.format!=='GA_STOK'||stock.versi!==1||!['item','transaksi','mutasi','opname','baris_opname'].every(k=>Array.isArray(stock.data?.[k])))throw new Error('Data cadangan stok belum lengkap.');zip.file('Data_Stok_Opname.json',JSON.stringify(stock,null,2));zip.file('BACA_DULU_STOK.txt','Salinan seluruh data Stok Barang & Opname.\nData ini terpisah dari format pemulihan Data_Portal_GA.json.\nTidak tersedia impor stok JSON langsung melalui web pada pembaruan ini. Simpan file ini untuk pemulihan terpisah yang mempertahankan ID dan relasi stok.\n');}
+ const paths=[...new Set((snapshot.data?.karyawan||[]).map(k=>k.foto_path).filter(Boolean))];
+ if(paths.length&&!loadPhoto)throw new Error('Foto karyawan perlu disertakan agar cadangan lengkap.');
+ for(const path of paths){if(!/^[0-9a-f-]{36}\/[0-9a-f-]{36}\.jpg$/i.test(path))throw new Error('Jalur foto karyawan perlu diperiksa sebelum ekspor.');const blob=await loadPhoto(path);zip.file('foto_karyawan/'+path,await blob.arrayBuffer());}
+ const logos=[...new Set((snapshot.data?.link_kerja||[]).map(v=>v.logo_path).filter(Boolean))];
+ if(logos.length&&!loadLogo)throw new Error('Logo Link Kerja perlu disertakan agar cadangan lengkap.');
+ for(const path of logos){if(!/^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(png|jpg|webp)$/i.test(path))throw new Error('Jalur logo perlu diperiksa.');const blob=await loadLogo(path);zip.file('logo_link_kerja/'+path,await blob.arrayBuffer());}
+ return {blob:await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}}),filename:'Cadangan_Portal_GA_'+dateName(now)+'.zip'};
+}
+function months(today=g.TrackingDomain.today()){
+ const [year,month]=today.split('-').map(Number);return [1,2,3].map(n=>{const v=new Date(Date.UTC(year,month-1-n,1));return {value:v.toISOString().slice(0,7),label:new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric',timeZone:'UTC'}).format(v)};});
+}
+function monthly(snapshot){
+ if(snapshot?.format!=='GA_PORTAL_BULANAN'||![14,21].includes(snapshot.versi_skema)||snapshot.versi_format!==1||!/^\d{4}-\d{2}$/.test(snapshot.periode)||!['tamu','catatan','dokumen'].includes(snapshot.jenis))throw new Error('Format unduhan periode tidak sesuai.');
+ const kind=snapshot.jenis,data=Object.fromEntries(['jabatan','karyawan','perangkat','serah_terima_perangkat','dokumen','perpindahan_dokumen','pengambilan_skc','tamu','catatan_admin','pengaturan_tahunan','saldo_cuti','pemakaian_cuti','potongan_cuti','pengaturan_cuti','link_kerja','kantor'].map(k=>[k,[]]));
+ const allowed=kind==='dokumen'?['dokumen','perpindahan_dokumen']:[kind==='tamu'?'tamu':'catatan_admin'];for(const k of allowed){if(!Array.isArray(snapshot.data?.[k]))throw new Error('Data periode belum lengkap.');data[k]=snapshot.data[k];}
+ const target=kind==='dokumen'?'Tracking_Dokumen.xlsx':'Tamu_dan_Catatan.xlsx';
+ const file=files({...snapshot,format:'GA_PORTAL',data},[target])[target];
+ const wb=g.XLSX.read(file,{type:'array',cellDates:true});
+ if(kind!=='dokumen'){const remove=kind==='tamu'?'Catatan Admin':'Tamu';wb.SheetNames=wb.SheetNames.filter(n=>n!==remove);delete wb.Sheets[remove];}
+ const metadata=[['Periode',snapshot.periode],['Diunduh oleh',snapshot.nama_petugas||''],['Waktu ekspor (UTC)',snapshot.diekspor_pada],['Dasar periode',kind==='tamu'?'Tanggal kedatangan':kind==='catatan'?'Tanggal dibuat (WIT)':'Aktif pada akhir bulan; selesai/diambil/dibatalkan dalam bulan tersebut'],['Catatan',kind==='dokumen'?'Status dan posisi mengikuti riwayat sampai akhir bulan. Identitas, asal office, dan isi dokumen memakai data terkini.':'Data dan status sesuai saat diekspor.']];
+ const ws=g.XLSX.utils.aoa_to_sheet(metadata);ws['!cols']=[{wch:24},{wch:95}];g.XLSX.utils.book_append_sheet(wb,ws,'Informasi periode');
+ const name={tamu:'Daftar_Tamu',catatan:'Catatan_Admin',dokumen:'Tracking_Dokumen'}[kind];
+ return {blob:new Blob([g.XLSX.write(wb,{type:'array',bookType:'xlsx',compression:true})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),filename:name+'_'+snapshot.periode+'.xlsx'};
+}
+function save(result){const url=URL.createObjectURL(result.blob),a=document.createElement('a');a.href=url;a.download=result.filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+function setup(){
+ if(document.body.dataset.area!=='portal')return;const panel=document.getElementById('ga-panel-download');if(!panel)return;
+ if(!document.getElementById('export-monthly')){
+  panel.innerHTML=`<section class="download-section"><h2>Unduh per bulan</h2><p>Pilih salah satu dari tiga bulan yang sudah selesai. Seluruh halaman pada periode terpilih masuk ke satu file Excel.</p><form id="export-monthly"><div class="download-fields"><div class="ga-profile-field"><label class="ga-profile-label" for="export-period">Periode</label><select id="export-period" required></select></div><div class="ga-profile-field"><label class="ga-profile-label" for="export-kind">Data</label><select id="export-kind"><option value="tamu">Daftar Tamu &amp; Vendor</option><option value="catatan">Catatan Admin</option><option value="dokumen">Tracking Dokumen</option></select></div></div><p id="export-period-help" class="ga-profile-help"></p><button class="ga-profile-button primary" type="submit">Unduh Excel periode ini</button><p id="export-period-message" role="status" hidden></p></form></section>
+  <section id="export-box" class="download-section"><h2>Cadangan seluruh data</h2><p>Satu ZIP berisi seluruh data operasional dari semua halaman, termasuk Aktif, Selesai, Riwayat, dan Simpan. Berisi Excel, JSON, foto karyawan, serta logo Link Kerja; Excel Tracking Dokumen terpisah. Dokumen mengikuti office akun; Administrator mencakup semua office. Data mess dan akun login tidak disertakan. Data stok dan opname ikut sebagai JSON setelah modul diaktifkan.</p><button class="ga-profile-button primary" id="export-all" type="button">Unduh Semua</button><p id="export-message" role="status" hidden></p></section>`;
+  document.getElementById('export-all').onclick=download;document.getElementById('export-monthly').onsubmit=downloadMonth;
+  document.getElementById('export-kind').onchange=()=>{document.getElementById('export-period-help').textContent=document.getElementById('export-kind').value==='dokumen'?'Mencakup dokumen aktif pada akhir bulan dan dokumen yang selesai dalam bulan terpilih.':'Tamu mengikuti tanggal kedatangan. Catatan mengikuti tanggal pencatatan.';};document.getElementById('export-kind').onchange();
+ }
+ const select=document.getElementById('export-period'),old=select.value;select.innerHTML=months().map(m=>'<option value="'+m.value+'">'+m.label+'</option>').join('');if(months().some(m=>m.value===old))select.value=old;
+ document.getElementById('export-box').hidden=!A.superAdmin();panel.querySelector('section').hidden=!A.canWrite();
+ setupPhotoMigration();
+}
+function setupPhotoMigration(){
+ const host=document.getElementById('ga-panel-profile');if(!host)return;let box=document.getElementById('migrate-photos');
+ if(!box){box=document.createElement('section');box.id='migrate-photos';box.className='ga-profile-section';box.innerHTML='<h3>Optimalkan foto karyawan lama</h3><p class="ga-profile-help">Foto lama dikompres dan dipindahkan ke penyimpanan foto secara bertahap. Foto baru otomatis memakai cara ini. Foto lama baru dilepas dari tabel setelah salinannya berhasil tersimpan.</p><button class="ga-profile-button" type="button" id="migrate-photos-start">Pindahkan foto lama</button><p id="migrate-photos-message" class="ga-profile-message" role="status" hidden></p>';host.append(box);document.getElementById('migrate-photos-start').onclick=async event=>{const b=event.currentTarget,msg=document.getElementById('migrate-photos-message');if(b.disabled||!A.superAdmin())return;b.disabled=true;msg.hidden=false;try{const n=await g.FotoKaryawan.migrate(p=>{msg.textContent=p.count+' foto selesai. Memproses '+p.name+'…';});msg.textContent=n?n+' foto berhasil dipindahkan.':'Semua foto sudah menggunakan penyimpanan foto, atau belum ada foto lama.';}catch(err){msg.textContent=err.message;}finally{b.disabled=false;}};}
+ box.hidden=!A.superAdmin();
+}
+async function downloadMonth(event){
+ event.preventDefault();const form=event.currentTarget,b=form.querySelector('[type=submit]'),msg=document.getElementById('export-period-message');if(b.disabled||!A.canWrite()||!form.reportValidity())return;b.disabled=true;msg.hidden=false;msg.textContent='Menyiapkan data periode…';
+ try{const snap=await A.rpc('ekspor_periode_portal',{p_bulan:document.getElementById('export-period').value+'-01',p_jenis:document.getElementById('export-kind').value});await ready();if(!A.canWrite())throw new Error('Hak akses berubah. Unduhan dibatalkan.');save(monthly(snap));msg.textContent='File Excel periode terpilih siap diunduh.';}catch(err){msg.textContent=err.message;}finally{b.disabled=false;}
+}
+async function download(){
+ if(busy||!A.superAdmin())return;busy=true;const b=document.getElementById('export-all'),msg=document.getElementById('export-message');b.disabled=true;b.textContent='Menyiapkan unduhan…';msg.hidden=false;msg.textContent='Mengambil seluruh data, foto karyawan, dan logo.';
+ try{const snap=await A.rpc('ekspor_data_portal',{}),client=await A.requireClient();let stock=null;if(g.StokStore){try{stock=await g.StokStore.backup();}catch(err){if(!err.setup)throw err;}}const result=await build(snap,new Date(),async path=>{const {data,error}=await client.storage.from('foto_karyawan').download(path);if(error)throw new Error('Foto karyawan belum berhasil diunduh. Cadangan dibatalkan agar tidak ada foto yang tertinggal.');return data;},async path=>{const {data,error}=await client.storage.from('logo_link_kerja').download(path);if(error)throw new Error('Logo belum berhasil diunduh. Coba kembali agar cadangan lengkap.');return data;},stock);if(!A.superAdmin())throw new Error('Hak akses berubah. Unduhan dibatalkan.');save(result);msg.textContent='Paket Excel, JSON, foto karyawan, dan logo'+(stock?', termasuk data stok/opname,':'')+' siap diunduh.';}
+ catch(err){msg.textContent=err.message||'Unduhan belum dapat disiapkan. Coba lagi.';}finally{busy=false;b.disabled=false;b.textContent='Unduh Semua';}
+}
+g.EksporPortal=Object.freeze({files,build,monthly,months,dateName});document.addEventListener('profil:siap',setup);document.addEventListener('akses:berubah',setup);setup();
+})(window);

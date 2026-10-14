@@ -1,0 +1,436 @@
+[
+  {
+    "kode": "8886008101053",
+    "nama": "Aqua",
+    "spesifikasi": "Botol 600 ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Btl"
+  },
+  {
+    "kode": "8886008101046",
+    "nama": "Aqua",
+    "spesifikasi": "Gelas 220 ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Gls"
+  },
+  {
+    "kode": "8886008101336",
+    "nama": "Aqua",
+    "spesifikasi": "Aqua 330 Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Btl"
+  },
+  {
+    "kode": "8999999173685",
+    "nama": "Buah Vita Appel",
+    "spesifikasi": "Buah Vita 250Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Kotak"
+  },
+  {
+    "kode": "899999173692",
+    "nama": "Buah Vita Leci",
+    "spesifikasi": "Buah Vita 250Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Kotak"
+  },
+  {
+    "kode": "899999173708",
+    "nama": "Buah Vita Mangga",
+    "spesifikasi": "Buah Vita 250Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Kotak"
+  },
+  {
+    "kode": "8998866605120",
+    "nama": "Cling Pembersih Kaca Botol",
+    "spesifikasi": "Botol 440 Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Btl"
+  },
+  {
+    "kode": "8998866605151",
+    "nama": "Cling Pembersih Kaca Refill",
+    "spesifikasi": "Refill 425 Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "07457602700573-GRP",
+    "nama": "Garpu Plastik",
+    "spesifikasi": "0",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "7457602700572",
+    "nama": "Gelas Plastik",
+    "spesifikasi": "0",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "899-GA-0001",
+    "nama": "Gula Pasir",
+    "spesifikasi": "1 kg",
+    "jenis_aset": "Consumable",
+    "satuan": "Pack"
+  },
+  {
+    "kode": "8992775110140",
+    "nama": "Kacang Kulit",
+    "spesifikasi": "Garuda 145 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Bngks"
+  },
+  {
+    "kode": "0745114066275",
+    "nama": "Kain Lap Mikrofiber",
+    "spesifikasi": "Kain Lap Mikrofiber 400*400mm",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "886020001096",
+    "nama": "Kamper Bola Pewangi Ruangan",
+    "spesifikasi": "Swallow isi 5 Pcs - Pewangi toilet 5",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "KNB-GA-43*72",
+    "nama": "Kanebo",
+    "spesifikasi": "Kain lap kanebo SPEED R berserat warna warni ukuran 43*32 Cm",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "35K-150-GA-35*55",
+    "nama": "Kantong Plastik",
+    "spesifikasi": "Kantong Plastik 35*55 Cm",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "40K-150-GA-40*60",
+    "nama": "Kantong Plastik",
+    "spesifikasi": "Kantong Plastik 40*60 Cm",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8991002105409",
+    "nama": "Kopi Hitam Bubuk",
+    "spesifikasi": "Kapal Api 380 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "10653314504510",
+    "nama": "Kusuka",
+    "spesifikasi": "Kusuka Rumput Laut 60 Gr",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "10053314502224",
+    "nama": "Kusuka",
+    "spesifikasi": "Kusuka Ayam Lada Hitam  60 Gr",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "10053314502231",
+    "nama": "Kusuka",
+    "spesifikasi": "Kusuka Keju Bakar  60 Gr",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "18992759214038",
+    "nama": "Nice Toilet Roll 238s- 2Ply",
+    "spesifikasi": "Nice Toilet Roll 238s- 2Ply",
+    "jenis_aset": "Consumable",
+    "satuan": "Roll"
+  },
+  {
+    "kode": "18997760223012",
+    "nama": "Oreo Cokelat",
+    "spesifikasi": "119,6 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "18997760223012",
+    "nama": "Oreo Cokelat Creme",
+    "spesifikasi": "119,6 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "0745760270057",
+    "nama": "Piring Plastik",
+    "spesifikasi": "0",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "899103010216",
+    "nama": "Piring Plastik Type P7",
+    "spesifikasi": "0",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "18997035563541",
+    "nama": "Pocari Sweat",
+    "spesifikasi": "Pocari 350ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Btl"
+  },
+  {
+    "kode": "18997035563541",
+    "nama": "Pocari Sweat",
+    "spesifikasi": "Pocari 350ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8999999570804",
+    "nama": "Rinso",
+    "spesifikasi": "Rinso detergen bubuk anti noda rose free fresh 400 ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "20D-GA-001054",
+    "nama": "Sandal yeye",
+    "spesifikasi": "YEYE 318",
+    "jenis_aset": "Consumable",
+    "satuan": "Psng"
+  },
+  {
+    "kode": "8999999195649",
+    "nama": "Sariwangi Teh Celup",
+    "spesifikasi": "46,25 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pack"
+  },
+  {
+    "kode": "8999999195649",
+    "nama": "Sariwangi Teh Celup",
+    "spesifikasi": "46,25 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8991001770301",
+    "nama": "Selamat Black Vanilla",
+    "spesifikasi": "145g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8991001780492",
+    "nama": "Selamat Chocolate",
+    "spesifikasi": "145 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8991001770486",
+    "nama": "Selamat Double Chocolate",
+    "spesifikasi": "145 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "07457602700573",
+    "nama": "Sendok Plastik",
+    "spesifikasi": "0",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8996001304433",
+    "nama": "Slai O'lai Nanas",
+    "spesifikasi": "128 g",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8992742375350",
+    "nama": "Spons",
+    "spesifikasi": "Spons Cuci Piring",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "89927453200672",
+    "nama": "Stela",
+    "spesifikasi": "Stela Gantung Apple",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8992745320067",
+    "nama": "Stela",
+    "spesifikasi": "Stela Gantung Apple",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8992745610892",
+    "nama": "Stela",
+    "spesifikasi": "Stela Gantung Lavender Gareden",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8992745610885",
+    "nama": "Stela",
+    "spesifikasi": "Stela Gantung Lavender Cafe Latte",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8999999187156",
+    "nama": "Sunlight 755 Ml",
+    "spesifikasi": "Sunlight ukuran 755 Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8999999406943",
+    "nama": "SUPER PELL 770 ML - LEMON.",
+    "spesifikasi": "Super Pel 770ml, 1 box 12 pack",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "899999940692",
+    "nama": "SUPER PELL Fresh Apple 770mL",
+    "spesifikasi": "Super Pel 770ml, 1 box 12 pack",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "18998009010238",
+    "nama": "Susu Ultra Chocolate",
+    "spesifikasi": "Susu Ultra Chocolate 250Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Kotak"
+  },
+  {
+    "kode": "KTK-GA-17*10*10.5",
+    "nama": "Tempat / Kotak Tissue / Tisu Roll",
+    "spesifikasi": "Toto  Ukuran: 17x10x10.5cm Bahan: Plastik Tebal Include Baut Fisher",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8999999179083",
+    "nama": "Vixal 750 ml BLUE",
+    "spesifikasi": "Vixal 750 ml Pembersih Kamar Mandi Extra Kuat",
+    "jenis_aset": "Consumable",
+    "satuan": "Btl"
+  },
+  {
+    "kode": "8999999179076",
+    "nama": "Vixal 750 ml GREEN",
+    "spesifikasi": "Vixal 750 ml Pembersih Kamar Mandi Kuat Harum",
+    "jenis_aset": "Consumable",
+    "satuan": "Btl"
+  },
+  {
+    "kode": "8999999175443",
+    "nama": "Wipol",
+    "spesifikasi": "Wipol Karbol Pewangi Cemara 750 Ml",
+    "jenis_aset": "Consumable",
+    "satuan": "Btl"
+  },
+  {
+    "kode": "8886030223846",
+    "nama": "Yuri hand soap 410 ml",
+    "spesifikasi": "Yuri hand soap 410 Ml pump lemon",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8886030223839",
+    "nama": "Yuri hand soap 410 ml",
+    "spesifikasi": "Yuri hand soap 410 Ml pump Grape",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "8886030223815",
+    "nama": "Yuri hand soap 410 ml",
+    "spesifikasi": "Yuri hand soap 410 Ml pump Apple",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "18886030229968",
+    "nama": "Yuri Handsoap Refill",
+    "spesifikasi": "Handsoap refil 375 ml Yuri (Pouch)",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "81050016",
+    "nama": "Bedding Articles",
+    "spesifikasi": "90x200",
+    "jenis_aset": "Consumable",
+    "satuan": "Set"
+  },
+  {
+    "kode": "801050017",
+    "nama": "Bantal Kepala",
+    "spesifikasi": "Brendis Uk. 50x70 ( Silikon Grade A)",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "801050018",
+    "nama": "Bantal Guling",
+    "spesifikasi": "Brendis Uk. 35x80 ( Silikon Grade A)",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "801050139",
+    "nama": "Gantungan Handuk",
+    "spesifikasi": "Dragon",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "801050100",
+    "nama": "Tempat Sampah kecil",
+    "spesifikasi": "Ukuran 5 Liter",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  },
+  {
+    "kode": "0801050152-SAPU-SEROK",
+    "nama": "Sapu-Serok",
+    "spesifikasi": "Nagata",
+    "jenis_aset": "Consumable",
+    "satuan": "Set"
+  },
+  {
+    "kode": "801050153-Mop Bolde",
+    "nama": "Mop Bolde",
+    "spesifikasi": "Bolde",
+    "jenis_aset": "Consumable",
+    "satuan": "Set"
+  },
+  {
+    "kode": "801050154-Jemuran",
+    "nama": "Jemuran Handuk",
+    "spesifikasi": "0",
+    "jenis_aset": "Consumable",
+    "satuan": "Pcs"
+  }
+]

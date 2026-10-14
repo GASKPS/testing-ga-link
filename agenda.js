@@ -1,0 +1,141 @@
+(function(g){
+'use strict';
+const A=g.Akses,U=g.PortalUI,D=g.TrackingDomain,e=U.escape,$=id=>document.getElementById(id),P=g.Paginasi,K=g.TamuKartu;
+const canReadGuests=()=>!!A.profile?.aktif&&(A.canWrite()||(A.profile.peran==='pembaca'&&A.profile.akses_portal));
+const canReadCurrent=()=>tab==='tamu'?canReadGuests():A.canWrite();
+function warning(note,today=D.today()){
+ if(note.status!=='Aktif'||!note.tanggal_pengingat)return {kind:'',label:''};
+ const days=D.dayNumber(note.tanggal_pengingat)-D.dayNumber(today);
+ return days<0?{kind:'late',label:'Tanggal terlewat'}:days===0?{kind:'today',label:'Hari ini'}:days<=3?{kind:'near',label:'Mendekati tanggal'}:{kind:'',label:''};
+}
+g.AgendaDomain=Object.freeze({warning});
+const host=$('agenda-page');host.innerHTML=`<header class="page-heading"><div><h1 id="agenda-title">Tamu &amp; Catatan</h1><p class="page-description" id="agenda-description">Kunjungan site dan informasi untuk petugas.</p></div><button class="button button-primary" id="agenda-add" type="button">Tambah tamu</button></header>
+<div class="panel agenda-panel"><div class="agenda-tabs" role="tablist" aria-label="Tamu dan catatan">${[['tamu','Tamu'],['catatan','Catatan Admin'],['simpan','Simpan']].map(([id,label],i)=>`<button id="agenda-tab-${id}" role="tab" aria-controls="agenda-results" aria-selected="${i===0}" tabindex="${i===0?0:-1}" type="button" data-agenda-tab="${id}">${label}</button>`).join('')}</div>
+<div class="agenda-toolbar"><div class="field agenda-search"><label for="agenda-search">Cari</label><input type="search" id="agenda-search" maxlength="200" placeholder="Nama, asal, atau isi note…"></div><div class="field" id="agenda-view-field"><label for="agenda-view">Tampilkan</label><select id="agenda-view"><option value="aktif">Aktif</option><option value="riwayat">Riwayat</option></select></div><div class="field"><label for="agenda-category">Jenis</label><select id="agenda-category"></select></div><div class="field" id="agenda-status-field"><label for="agenda-status">Status</label><select id="agenda-status"></select></div><div class="field" id="agenda-from-field"><label for="agenda-from">On site dari</label><input id="agenda-from" type="date"></div><div class="field" id="agenda-to-field"><label for="agenda-to">Sampai</label><input id="agenda-to" type="date"></div><button class="button button-secondary" id="agenda-refresh" type="button">Muat ulang</button></div>
+<p id="agenda-saved-help" class="agenda-saved-help" hidden>Data selesai yang disimpan hanya tampil di sini. Catatan aktif tetap muncul di Aktif agar pengingat berjalan. Data tersimpan dipertahankan sampai dihapus oleh Administrator.</p><p id="agenda-error" class="form-error" role="alert" hidden></p><span id="agenda-count" class="agenda-count" role="status"></span><div id="agenda-results" role="tabpanel" aria-labelledby="agenda-tab-tamu" tabindex="-1"></div><div id="agenda-guest-more" class="guest-more" hidden><button class="button button-secondary" id="agenda-show-guests" type="button" aria-controls="agenda-results" aria-expanded="false">Selengkapnya</button></div><div id="agenda-pages" class="pagination"></div></div>`;
+function makeDialog(id,title,body){const node=document.createElement('dialog');node.id=id;node.className='form-dialog agenda-dialog';node.setAttribute('aria-labelledby',id+'-title');node.innerHTML=`<div class="dialog-heading"><h2 id="${id}-title">${title}</h2><button type="button" class="icon-button" data-agenda-close="${id}" aria-label="Tutup">${U.icon('close')}</button></div><form id="${id}-form"><div class="form-body"><p class="actor-line">Petugas <strong data-current-user></strong></p><div class="form-grid">${body}</div><p id="${id}-error" class="form-error" role="alert" hidden></p></div><div class="dialog-actions"><button type="button" class="button button-secondary" data-agenda-close="${id}">Batal</button><button type="submit" class="button button-primary">Simpan</button></div></form>`;document.body.append(node);return node;}
+const guestDialog=makeDialog('tamu-dialog','Tambah tamu',`<div class="field"><label for="tamu-jenis">Jenis kunjungan</label><select id="tamu-jenis" name="jenis"><option>Tamu</option><option>Vendor</option></select></div><div class="field" id="tamu-jumlah-field"><label for="tamu-jumlah">Jumlah orang</label><select id="tamu-jumlah">${Array.from({length:10},(_,i)=>`<option>${i+1}</option>`).join('')}</select></div><div class="full-width" id="tamu-orang"></div><div class="field"><label for="tamu-asal">Tamu dari mana</label><input id="tamu-asal" name="asal" maxlength="200"></div><div class="field"><label for="tamu-tanggal">Tanggal kedatangan <span class="required">*</span></label><input id="tamu-tanggal" name="tanggal_kedatangan" type="date" required></div><div class="field"><label for="tamu-status">Status <span class="required">*</span></label><select id="tamu-status" name="status" required><option>Akan Datang</option><option>Sudah Datang</option><option>Keluar Site</option><option>Batal</option></select></div><div class="field full-width" id="tamu-keluar-field" hidden><label for="tamu-keluar">Tanggal keluar site <span class="required">*</span></label><input id="tamu-keluar" name="tanggal_keluar" type="date"></div><div class="field full-width"><label for="tamu-keperluan">Keperluan</label><input id="tamu-keperluan" name="keperluan" maxlength="500"></div><div class="field full-width"><label for="tamu-note">Note</label><textarea id="tamu-note" name="catatan" rows="4" maxlength="3000"></textarea></div>`);
+const noteDialog=makeDialog('catatan-dialog','Tambah catatan',`<div class="field full-width"><label for="catatan-jenis">Jenis catatan <span class="required">*</span></label><select id="catatan-jenis" name="jenis" required><option>Administrasi Karyawan</option><option>Pengingat</option></select></div><div class="field full-width" id="catatan-employee-picker"></div><div class="field full-width"><label class="agenda-check"><input type="checkbox" id="catatan-pakai-tanggal"> Gunakan tanggal pengingat</label></div><div class="field full-width" id="catatan-tanggal-field" hidden><label for="catatan-tanggal">Tanggal pengingat <span class="required">*</span></label><input id="catatan-tanggal" name="tanggal_pengingat" type="date"></div><div class="field full-width"><label for="catatan-note">Note <span class="required">*</span></label><textarea id="catatan-note" name="catatan" rows="5" required maxlength="3000"></textarea></div>`);
+const picker=g.EmployeeUI.createPicker('catatan-employee','Karyawan',{allowAdmin:false,allowExistingInactive:true});
+let accessKey='',rows=[],tab='tamu',page=1,total=0,pageSize=20,guestExpanded=false,editingGuest=null,editingNote=null,request=0,batchKey='',searchTimer,selectedDetail=null,detailRequest=0;
+const detailDialog=document.createElement('dialog');detailDialog.id='agenda-detail';detailDialog.className='form-dialog agenda-dialog agenda-detail';detailDialog.setAttribute('aria-labelledby','agenda-detail-title');detailDialog.innerHTML=`<div class="dialog-heading"><h2 id="agenda-detail-title">Detail</h2><button type="button" class="icon-button" data-agenda-close="agenda-detail" aria-label="Tutup">${U.icon('close')}</button></div><div class="form-body" id="agenda-detail-body"></div><p class="form-error" id="agenda-detail-error" role="alert" hidden></p><div class="dialog-actions" id="agenda-detail-actions"></div>`;document.body.append(detailDialog);
+const stamp=v=>v?new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jayapura',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(v))+' WIT':'—';
+const guestActive=v=>!['Keluar Site','Batal'].includes(v.status);
+function error(id,msg){$(id).textContent=msg;$(id).hidden=!msg;}
+function saveButton(v,kind){return v.disimpan?'<span class="agenda-saved-badge">Tersimpan</span>':(kind==='catatan'||v.status==='Keluar Site')?`<button class="button button-secondary" type="button" data-agenda-save="${kind}" data-agenda-id="${e(v.id)}">Masukkan Simpan</button>`:'';}
+function metadata(v){return `<div class="agenda-meta"><span>Dibuat oleh <strong>${e(v.nama_pembuat)}</strong> · ${e(stamp(v.dibuat_pada))}</span>${v.diubah_pada&&v.diubah_pada!==v.dibuat_pada?`<span>Diubah oleh ${e(v.nama_pengubah)} · ${e(stamp(v.diubah_pada))}</span>`:''}${v.disimpan?`<span>Disimpan oleh ${e(v.nama_penyimpan||'—')} · ${e(stamp(v.disimpan_pada))}</span>`:''}</div>`;}
+function noteStatus(v){const w=warning(v);return `<span class="${w.label?'agenda-warning '+w.kind:'status-badge'}">${e(w.label||v.status)}</span>`;}
+function completeButton(v){return v.status==='Aktif'?`<button class="button button-primary" type="button" data-note-status="Selesai" data-note-id="${e(v.id)}">Selesai</button>`:'';}
+function compactRow(v){
+ const guest=v._kelompok==='tamu',kind=guest?'tamu':'catatan',name=guest?v.nama:v.nama_karyawan||'Pengingat',date=guest?v.tanggal_kedatangan:v.tanggal_pengingat;
+ const note=guest?v.catatan||v.keperluan:v.catatan,subtitle=guest?[v.jenis||'Tamu',v.asal].filter(Boolean).join(' · '):v.jenis;
+ return `<article class="agenda-row ${guest?'':warning(v).kind}"><div class="agenda-row-person"><h2>${e(name)}</h2><p>${e(subtitle)}</p></div><div class="agenda-row-date"${date?'':' hidden'}><span class="agenda-date-label">${guest?'Kedatangan':'Pengingat'}</span>${date?e(U.dateText(date)):''}</div><div class="agenda-row-status">${guest?`<span class="status-badge">${e(v.status)}</span>`:noteStatus(v)}</div><div class="agenda-row-note">${note?`<p class="agenda-excerpt">${e(note)}</p>`:''}</div><div class="agenda-row-actions"><button class="button button-secondary" type="button" data-agenda-detail="${e(v.id)}" data-agenda-kind="${kind}" aria-label="Detail ${e(name)}">Detail</button>${guest?'':completeButton(v)}</div></article>`;
+}
+function guestTable(data){
+ const write=A.canWrite(),start=guestExpanded?(page-1)*20:0;
+ return `<div class="guest-sheet-scroll" id="guest-sheet-scroll" role="region" aria-label="Daftar tamu, dapat digulir" tabindex="0"><table class="guest-sheet${write?' guest-sheet-admin':''}"><caption class="sr-only">Data Tamu. Satu orang per baris; anggota rombongan berurutan.</caption><colgroup>${Array.from({length:write?7:6},()=>'<col>').join('')}</colgroup><thead><tr>${['No','Nama','Jabatan','Tamu dari mana','Tanggal on site','Status',...(write?['Tindakan']:[])].map(label=>`<th scope="col">${label}</th>`).join('')}</tr></thead><tbody>${data.map((v,i)=>`<tr${i>0&&v._guestGroupKey!==data[i-1]._guestGroupKey?' class="guest-group-start"':''}><td class="guest-sheet-number">${start+i+1}</td><td class="guest-sheet-name">${e(v.nama||'—')}</td><td>${e(v.jabatan||'—')}</td><td>${e(v.asal||'—')}</td><td class="guest-sheet-date">${v.tanggal_kedatangan?`<time datetime="${e(v.tanggal_kedatangan)}">${e(U.dateText(v.tanggal_kedatangan))}</time>`:'—'}</td><td><span class="guest-sheet-status">${e(v.status||'—')}</span></td>${write?`<td><button class="guest-sheet-detail" type="button" data-agenda-detail="${e(v.id)}" data-agenda-kind="tamu" aria-label="Detail ${e(v.nama||'tamu')}">Detail</button></td>`:''}</tr>`).join('')}</tbody></table></div>`;
+}
+async function guestJobs(data){
+ const missing=data.filter(v=>!Object.prototype.hasOwnProperty.call(v,'jabatan'));
+ for(let start=0;start<missing.length;start+=4)await Promise.all(missing.slice(start,start+4).map(async v=>{const detail=await A.one('tamu',v.id,'id,jabatan');v.jabatan=detail.jabatan||'';}));
+}
+function visibleGuests(data=rows,expanded=guestExpanded,number=page){return expanded?data.slice((number-1)*20,number*20):data.slice(0,5);}
+function loading(value){$('agenda-results').setAttribute('aria-busy',String(value));$('agenda-show-guests').disabled=value;$('agenda-pages').inert=value;}
+async function guestView(expanded,number=1){
+ if(!canReadGuests()||tab!=='tamu')return false;
+ const n=++request,range=P.range(rows.length,number,expanded?20:5);loading(true);
+ try{await guestJobs(visibleGuests(rows,expanded,range.page));if(n!==request||!canReadGuests()||tab!=='tamu')return false;guestExpanded=expanded;page=range.page;render();error('agenda-error','');return true;}
+ catch(err){if(n===request){render();error('agenda-error',err.message);}return false;}
+ finally{if(n===request)loading(false);}
+}
+function statusOptions(){
+ const previous=$('agenda-status').value,values=$('agenda-view').value==='riwayat'?['Keluar Site','Batal']:['Akan Datang','Sudah Datang'];
+ $('agenda-status').innerHTML='<option value="">Semua status</option>'+values.map(value=>`<option>${e(value)}</option>`).join('');$('agenda-status').value=values.includes(previous)?previous:'';
+}
+function renderDetail(v){
+ const guest=v._kelompok==='tamu',name=guest?v.nama:v.nama_karyawan||'Pengingat';selectedDetail=v;$('agenda-detail-title').textContent=name;error('agenda-detail-error','');
+ const fields=guest?[['Jenis kunjungan',v.jenis],['Tamu dari mana',v.asal],['Jabatan',v.jabatan],['Tanggal on site',U.dateText(v.tanggal_kedatangan)],['Keluar site',v.tanggal_keluar?U.dateText(v.tanggal_keluar):'']]:[['Jenis catatan',v.jenis],['NIK',v.nik_karyawan],['Tanggal pengingat',v.tanggal_pengingat?U.dateText(v.tanggal_pengingat):'']];
+ $('agenda-detail-body').innerHTML=`<div class="agenda-detail-state">${guest?`<span class="status-badge">${e(v.status)}</span>`:noteStatus(v)}${v.disimpan?'<span class="agenda-saved-badge">Tersimpan</span>':''}</div><dl class="agenda-detail-fields">${fields.filter(([,value])=>value).map(([label,value])=>`<div><dt>${e(label)}</dt><dd>${e(value)}</dd></div>`).join('')}</dl>${guest&&v.keperluan?`<section class="agenda-detail-note"><h3>Keperluan</h3><p>${e(v.keperluan)}</p></section>`:''}${v.catatan?`<section class="agenda-detail-note"><h3>Note</h3><p>${e(v.catatan)}</p></section>`:''}<div class="agenda-detail-meta">${metadata(v)}${!guest&&v.status==='Selesai'?`<p>Diselesaikan oleh <strong>${e(v.nama_penyelesai||'—')}</strong> · ${e(stamp(v.diselesaikan_pada))}</p>`:''}</div>`;
+ $('agenda-detail-actions').innerHTML=`${guest?`<button type="button" class="button button-primary" data-tamu-edit="${e(v.id)}">${guestActive(v)?'Edit / Keluar site':'Edit tamu'}</button>`:`${completeButton(v)}${v.status==='Aktif'?`<button type="button" class="button button-secondary" data-note-edit="${e(v.id)}">Edit catatan</button>`:A.administrator()?`<button type="button" class="button button-secondary" data-note-status="Aktif" data-note-id="${e(v.id)}">Buka kembali</button>`:''}`}${v.disimpan?'':saveButton(v,guest?'tamu':'catatan')}${g.DataAdmin.buttons(guest?'tamu':'catatan',v.id,v.versi,name)}`;
+}
+async function showDetail(id,kind){
+ if(!A.canWrite()||!['tamu','catatan'].includes(kind))return;const seq=++detailRequest;
+ const v=await A.one(kind==='tamu'?'tamu':'catatan_admin',id);v._kelompok=kind;
+ if(kind==='catatan'&&v.karyawan_id){const person=await A.one('karyawan',v.karyawan_id,'nama,nik');v.nama_karyawan=person.nama;v.nik_karyawan=person.nik;}
+ if(seq!==detailRequest||!A.canWrite())return;renderDetail(v);if(!detailDialog.open)detailDialog.showModal();
+}
+function render(){
+ const guests=tab==='tamu',preview=guests&&!guestExpanded,visible=guests?visibleGuests():rows,write=A.canWrite();
+ $('agenda-title').textContent=write?'Tamu & Catatan':'Data Tamu';$('agenda-description').textContent=write?'Kunjungan site dan informasi untuk petugas.':'Daftar kunjungan site. Akun ini hanya memiliki akses melihat.';
+ $('agenda-add').hidden=!write||tab==='simpan';$('agenda-tab-catatan').hidden=$('agenda-tab-simpan').hidden=!write;
+ for(const id of ['agenda-status-field','agenda-from-field','agenda-to-field'])$(id).hidden=!guests;
+ $('agenda-search').placeholder=guests?'Nama atau asal tamu…':'Nama atau isi note…';
+ $('agenda-results').innerHTML=!canReadCurrent()?'<p class="agenda-empty">Halaman ini memerlukan akses Portal yang aktif.</p>':visible.length?guests?guestTable(visible):`<div class="agenda-list"><div class="agenda-list-head" aria-hidden="true"><span>Nama / jenis</span><span>${tab==='catatan'?'Pengingat':'Tanggal'}</span><span>Status</span><span>Note</span><span>Tindakan</span></div>${visible.map(compactRow).join('')}</div>`:'<p class="agenda-empty">Belum ada data yang sesuai pilihan ini.</p>';
+ const range=P.range(total,preview?1:page,preview?5:pageSize);$('agenda-count').textContent=guests?P.summary(range).replace('data','tamu'):P.summary(range);
+ $('agenda-guest-more').hidden=!guests||!canReadGuests()||total<=5;
+ $('agenda-show-guests').textContent=guestExpanded?'Tampilkan 5 saja':'Selengkapnya';$('agenda-show-guests').setAttribute('aria-expanded',String(guests&&guestExpanded));
+ if(preview){$('agenda-pages').hidden=true;$('agenda-pages').replaceChildren();}
+ else P.render($('agenda-pages'),range,async n=>{if(guests)await guestView(true,n);else{page=n;await refresh(true);}host.scrollIntoView({block:'start'});},false);
+}
+async function refresh(force=false){
+ if(!force&&location.hash!=='#agenda')return;
+ const n=++request;await A.ready;if(!canReadCurrent()){rows=[];total=0;loading(false);render();return false;}
+ loading(true);
+ try{
+  const guests=tab==='tamu',write=A.canWrite(),current=()=>n===request&&canReadCurrent();
+  if(guests){
+   const options={query:$('agenda-search').value.trim(),kind:$('agenda-category').value,status:$('agenda-status').value,from:$('agenda-from').value,to:$('agenda-to').value};
+   if(options.from&&options.to&&options.from>options.to)throw new Error('Tanggal akhir tidak boleh sebelum tanggal awal.');
+   let data;
+   if(write){const args={p_tab:'tamu',p_tampilan:$('agenda-view').value,p_jenis:options.kind,p_cari:'',p_halaman:1};const result=await A.rpc('halaman_agenda',args);if(!current())return false;data=await K.collect(result,number=>A.rpc('halaman_agenda',{...args,p_halaman:number}),current);}
+   else{data=await A.all('tamu','id,nama,jabatan,asal,tanggal_kedatangan,tanggal_keluar,status,jenis,disimpan',{},'tanggal_kedatangan');options.view=$('agenda-view').value;}
+   if(!data||!current())return false;const next=K.tableRows(K.filter(data,options)),range=P.range(next.length,guestExpanded?page:1,guestExpanded?20:5);await guestJobs(visibleGuests(next,guestExpanded,range.page));if(!current())return false;rows=next;total=next.length;page=range.page;pageSize=20;
+  }else{const result=await A.rpc('halaman_agenda',{p_tab:tab,p_tampilan:$('agenda-view').value,p_jenis:$('agenda-category').value,p_cari:$('agenda-search').value.trim(),p_halaman:page});if(!current())return false;rows=result.data;total=result.total;page=result.halaman;pageSize=result.ukuran_halaman||20;}
+  error('agenda-error','');render();return true;
+ }
+ catch(err){if(n===request){render();error('agenda-error',!A.canWrite()&&/permission denied|not allowed/i.test(err.message)?'Akses Data Tamu belum tersedia untuk akun ini. Hubungi Administrator.':err.message);}return false;}finally{if(n===request)loading(false);}
+}
+function selectTab(next,load=true){
+ if(!['tamu','catatan','simpan'].includes(next)||(next!=='tamu'&&!A.canWrite()))return;tab=next;guestExpanded=false;page=1;rows=[];total=0;$('agenda-status').value='';$('agenda-from').value='';$('agenda-to').value='';$('agenda-from').max='';$('agenda-to').min='';$('agenda-view').value='aktif';$('agenda-view-field').hidden=tab==='simpan';$('agenda-saved-help').hidden=tab!=='simpan';$('agenda-view').options[1].textContent=tab==='tamu'?'Riwayat':'Selesai';$('agenda-add').textContent=tab==='tamu'?'Tambah tamu':'Tambah catatan';
+ const kinds=tab==='tamu'?['Tamu','Vendor']:tab==='catatan'?['Administrasi Karyawan','Pengingat']:['Tamu','Vendor','Catatan'];$('agenda-category').innerHTML='<option value="">Semua jenis</option>'+kinds.map(k=>`<option value="${k==='Catatan'?'catatan':k}">${k}</option>`).join('');
+ statusOptions();document.querySelectorAll('[data-agenda-tab]').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.agendaTab===tab));b.tabIndex=b.dataset.agendaTab===tab?0:-1;});$('agenda-results').setAttribute('aria-labelledby','agenda-tab-'+tab);render();if(load)refresh(true);
+}
+function guestStatus(){const out=$('tamu-status').value==='Keluar Site';$('tamu-keluar-field').hidden=!out;$('tamu-keluar').required=out;$('tamu-keluar').disabled=!out;$('tamu-keluar').min=$('tamu-tanggal').value;$('tamu-keluar').max=D.today();if(!out)$('tamu-keluar').value='';}
+function people(values){const old=values||[...document.querySelectorAll('[data-guest-person]')].map(el=>({nama:el.querySelector('[data-guest-name]').value,jabatan:el.querySelector('[data-guest-job]').value}));const count=editingGuest?1:Number($('tamu-jumlah').value);$('tamu-orang').innerHTML=Array.from({length:count},(_,i)=>`<fieldset class="guest-person" data-guest-person><legend>Orang ${i+1}</legend><div class="form-grid"><div class="field"><label for="tamu-nama-${i}">Nama <span class="required">*</span></label><input id="tamu-nama-${i}" data-guest-name value="${e(old[i]?.nama||'')}" required maxlength="150"></div><div class="field"><label for="tamu-jabatan-${i}">Jabatan</label><input id="tamu-jabatan-${i}" data-guest-job value="${e(old[i]?.jabatan||'')}" maxlength="150"></div></div></fieldset>`).join('');}
+function noteType(){const employee=$('catatan-jenis').value==='Administrasi Karyawan';$('catatan-employee-picker').hidden=!employee;picker.setDisabled(!employee);const dated=$('catatan-pakai-tanggal').checked;$('catatan-tanggal-field').hidden=!dated;$('catatan-tanggal').required=dated;$('catatan-tanggal').disabled=!dated;}
+async function guestForm(id){
+ if(!A.canWrite())return;editingGuest=id?await A.one('tamu',id):null;batchKey=crypto.randomUUID();const f=$('tamu-dialog-form');f.reset();for(const el of f.elements)if(el.name)el.value=editingGuest?.[el.name]??({tanggal_kedatangan:D.today(),status:'Akan Datang',jenis:'Tamu'}[el.name]||'');$('tamu-jumlah').value='1';$('tamu-jumlah-field').hidden=!!id;people(editingGuest?[editingGuest]:[]);guestStatus();$('tamu-dialog-title').textContent=id?'Edit kunjungan':'Tambah kunjungan';error('tamu-dialog-error','');guestDialog.querySelector('[data-current-user]').textContent=A.profile?.nama||'';guestDialog.showModal();g.FormGuard?.clean(f);$('tamu-nama-0').focus();
+}
+async function noteForm(id){if(!A.canWrite())return;editingNote=id?await A.one('catatan_admin',id):null;const f=$('catatan-dialog-form');f.reset();$('catatan-jenis').value=editingNote?.jenis||'Administrasi Karyawan';$('catatan-pakai-tanggal').checked=!!editingNote?.tanggal_pengingat;$('catatan-tanggal').value=editingNote?.tanggal_pengingat||'';$('catatan-note').value=editingNote?.catatan||'';await picker.load(editingNote?.karyawan_id||'');noteType();$('catatan-dialog-title').textContent=id?'Edit catatan':'Tambah catatan';error('catatan-dialog-error','');noteDialog.querySelector('[data-current-user]').textContent=A.profile?.nama||'';noteDialog.showModal();g.FormGuard?.clean(f);$('catatan-jenis').focus();}
+$('agenda-add').onclick=()=>{(tab==='tamu'?guestForm():noteForm()).catch(err=>error('agenda-error',err.message));};
+$('agenda-show-guests').onclick=async()=>{
+ if($('agenda-show-guests').disabled||tab!=='tamu'||!canReadGuests())return;
+ if(await guestView(!guestExpanded,1)){$('agenda-results').scrollIntoView({block:'start'});$('agenda-results').focus({preventScroll:true});}
+};
+$('agenda-refresh').onclick=()=>refresh(true);$('agenda-view').onchange=$('agenda-category').onchange=()=>{page=1;statusOptions();refresh(true);};$('agenda-status').onchange=()=>{page=1;refresh(true);};$('agenda-from').onchange=$('agenda-to').onchange=()=>{page=1;$('agenda-from').max=$('agenda-to').value;$('agenda-to').min=$('agenda-from').value;refresh(true);};$('agenda-search').oninput=()=>{clearTimeout(searchTimer);request++;searchTimer=setTimeout(()=>{page=1;refresh(true);},300);};
+$('tamu-status').onchange=$('tamu-tanggal').onchange=guestStatus;$('tamu-jumlah').onchange=()=>people();$('catatan-jenis').onchange=$('catatan-pakai-tanggal').onchange=noteType;
+document.querySelectorAll('[data-agenda-close]').forEach(b=>b.onclick=()=>{const d=$(b.dataset.agendaClose);if(!g.FormGuard||g.FormGuard.leave(d))d.close();});
+document.querySelectorAll('[data-agenda-tab]').forEach(b=>{b.onclick=()=>selectTab(b.dataset.agendaTab);b.onkeydown=ev=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(ev.key)){ev.preventDefault();const tabs=A.canWrite()?['tamu','catatan','simpan']:['tamu'],i=tabs.indexOf(tab);selectTab(tabs[ev.key==='Home'?0:ev.key==='End'?tabs.length-1:(i+(ev.key==='ArrowRight'?1:tabs.length-1))%tabs.length]);$('agenda-tab-'+tab).focus();}};});
+async function act(event){
+ const detail=event.target.closest('[data-agenda-detail]'),guest=event.target.closest('[data-tamu-edit]'),note=event.target.closest('[data-note-edit]'),done=event.target.closest('[data-note-status]'),save=event.target.closest('[data-agenda-save]'),b=detail||guest||note||done||save;
+ if(!b||b.disabled||!A.canWrite())return;b.disabled=true;
+ try{if(detail)await showDetail(detail.dataset.agendaDetail,detail.dataset.agendaKind);if(guest){detailDialog.close();await guestForm(guest.dataset.tamuEdit);}if(note){detailDialog.close();await noteForm(note.dataset.noteEdit);}if(done||save){const id=done?done.dataset.noteId:save.dataset.agendaId,v=selectedDetail?.id===id?selectedDetail:rows.find(n=>n.id===id);if(!v)throw new Error('Muat ulang daftar terlebih dahulu.');if(done)await A.rpc('ubah_status_catatan',{p_id:v.id,p_versi:v.versi,p_status:done.dataset.noteStatus},true);else await A.rpc('tandai_simpan_agenda',{p_id:v.id,p_versi:v.versi,p_jenis:save.dataset.agendaSave},true);if(detailDialog.open)await showDetail(v.id,v._kelompok);await refresh(true);U.showToast(done?'Status catatan tersimpan.':'Data masuk ke Simpan.');}}
+ catch(err){error(detailDialog.open?'agenda-detail-error':'agenda-error',err.message);}finally{b.disabled=false;}
+}
+host.addEventListener('click',act);detailDialog.addEventListener('click',act);detailDialog.addEventListener('close',()=>{selectedDetail=null;detailRequest++;});
+for(const kind of ['tamu','catatan']){$(kind+'-dialog-form').onsubmit=async event=>{
+ event.preventDefault();if(!A.canWrite())return;const f=event.currentTarget,b=f.querySelector('[type=submit]');if(b.disabled||!f.reportValidity())return;b.disabled=true;
+ try{const data=Object.fromEntries(new FormData(f)),old=kind==='tamu'?editingGuest:editingNote;
+ if(kind==='tamu'){const people=[...document.querySelectorAll('[data-guest-person]')].map(el=>({nama:el.querySelector('[data-guest-name]').value.trim(),jabatan:el.querySelector('[data-guest-job]').value.trim()}));if(old)await A.rpc('simpan_tamu',{p_data:{...data,...people[0]},p_id:old.id,p_versi:old.versi},true);else await A.rpc('tambah_rombongan_tamu',{p_bersama:data,p_tamu:people,p_kunci:batchKey},true);}
+ else{data.karyawan_id=data.jenis==='Administrasi Karyawan'?picker.read().employeeId:null;await A.rpc('simpan_catatan_admin',{p_data:data,...(old?{p_id:old.id,p_versi:old.versi}:{})},true);}
+ g.FormGuard?.clean(f);$(kind+'-dialog').close();await refresh(true);U.showToast(kind==='tamu'?'Kunjungan tersimpan.':'Catatan tersimpan.');}
+ catch(err){error(kind+'-dialog-error',err.message);}finally{b.disabled=false;}
+};}
+for(const name of ['data:muat-ulang','employees:changed'])document.addEventListener(name,()=>refresh());
+document.addEventListener('akses:berubah',()=>{
+ request++;detailRequest++;
+ if(!A.canWrite()){for(const kind of ['tamu','catatan']){g.FormGuard?.clean($(kind+'-dialog-form'));$(kind+'-dialog').close();}detailDialog.close();if(tab!=='tamu')selectTab('tamu',false);}
+ const p=A.profile,key=p?[p.id,p.peran,p.aktif,p.akses_portal,p.office_id].join('|'):'';if(key!==accessKey){accessKey=key;rows=[];total=0;page=1;render();}if(canReadCurrent())refresh();else{rows=[];total=0;render();loading(false);}
+});
+window.addEventListener('hashchange',()=>{if(location.hash==='#agenda'&&tab==='tamu'){guestExpanded=false;page=1;}refresh();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});setInterval(()=>{if(!document.hidden)refresh();},60000);selectTab('tamu',false);refresh();
+})(window);
