@@ -34,7 +34,7 @@
  function updateRow(doc){
   const id=doc.id,draft=changes.get(id),errors=issues.get(id)||{},isConflict=conflict(id),disabled=locked()||!find(id)||T.isFinal(doc.statusTerakhir);
   $('ts-row-'+id).setAttribute('data-changed',draft?'true':'false');
-  D.columns.forEach((col,number)=>{const input=$(cell(id,number)),hint=$(`ts-error-${id}-${number}`);input.disabled=disabled;input.setAttribute('aria-invalid',errors[col.key]?'true':'false');hint.textContent=errors[col.key]||'';hint.hidden=!errors[col.key];});
+  D.columns.forEach((col,number)=>{const input=$(cell(id,number)),hint=$(`ts-error-${id}-${number}`);input.disabled=disabled;g.TanggalInput.sync(input);input.setAttribute('aria-invalid',errors[col.key]?'true':'false');hint.textContent=errors[col.key]||'';hint.hidden=!errors[col.key];});
   const status=$('ts-review-'+id);status.textContent=isConflict?(errors.conflict||(!find(id)?'Dokumen tidak tersedia':T.isFinal(doc.statusTerakhir)?'Dokumen sudah selesai':'Data berubah. Periksa posisi terbaru.')):Object.keys(errors).length?'Perlu diperbaiki':checked.has(id)?'Siap disimpan':draft?'Belum diperiksa':'—';status.setAttribute('data-state',isConflict||Object.keys(errors).length?'error':checked.has(id)?'ready':draft?'changed':'idle');
   const accept=panel.querySelector(`[data-ts-accept="${id}"]`),clear=panel.querySelector(`[data-ts-clear="${id}"]`);accept.hidden=!isConflict||!find(id)||T.isFinal(doc.statusTerakhir);accept.disabled=locked();clear.hidden=!draft;clear.disabled=locked();
  }
@@ -51,9 +51,10 @@
  }
  function render(){
   if(!allowed())return;
+  g.TanggalInput.close(false);
   try{visible=displayRows();}catch(err){visible=[];message(err.message,'error');}
   $('ts-rows').innerHTML=visible.map(renderRow).join('');
-  visible.forEach(doc=>{const row=values(doc);D.columns.forEach((col,number)=>{$(cell(doc.id,number)).value=row[col.key]||'';});updateRow(doc);});
+  visible.forEach(doc=>{const row=values(doc);D.columns.forEach((col,number)=>{const input=$(cell(doc.id,number));input.value=row[col.key]||'';if(col.key==='tanggal')g.TanggalInput.mount(input,{min:()=>find(doc.id)?.perpindahanTerakhir||find(doc.id)?.tanggalMasuk||doc.perpindahanTerakhir||doc.tanggalMasuk,max:()=>T.today()});});updateRow(doc);});
   $('ts-empty').hidden=!!visible.length;$('ts-empty').textContent=loading?'Memuat dokumen…':onlyChanged?'Belum ada baris yang diubah.':'Tidak ada dokumen aktif yang sesuai filter.';controls();mark();
  }
  function repaint(){visible.forEach(updateRow);controls();}

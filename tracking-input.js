@@ -21,12 +21,13 @@
  function selectOptions(options,value,label='BU'){return '<option value="">Pilih '+label+'</option>'+(!options.includes(value)&&value?`<option value="${e(value)}">${e(value)} (periksa)</option>`:'')+options.map(x=>`<option value="${e(x)}">${e(x)}</option>`).join('');}
  function officeOptions(value){const offices=context.offices.filter(o=>o.aktif||o.id===context.officeId);return '<option value="">Pilih office</option>'+(!offices.some(o=>o.id===value)&&value?`<option value="${e(value)}">${e(value)} (periksa)</option>`:'')+offices.map(o=>`<option value="${e(o.id)}">${e(o.nama)}${o.aktif?'':' (nonaktif)'}</option>`).join('');}
  function renderRows(){
+  g.TanggalInput.close(false);
   $('ti-rows').innerHTML=rows.map((row,index)=>`<tr id="ti-row-${index}"><th scope="row" class="ti-row-number">${index+1}</th>${D.columns.map((col,number)=>{
    const attrs=`id="${cellId(index,number)}" name="r${index}_${col.key}" data-ti-cell="" data-row="${index}" data-column="${number}" aria-label="Baris ${index+1}, ${e(col.label)}" aria-describedby="ti-error-${index}-${number}"`;
    const control=col.options?`<select ${attrs}>${selectOptions(col.options,row[col.key],col.key==='bu'?'BU':'status')}</select>`:col.key==='officeId'?`<select ${attrs}>${officeOptions(row[col.key])}</select>`:col.key==='noteDokumen'?`<textarea ${attrs} rows="1" placeholder="Opsional">${e(row[col.key])}</textarea>`:`<input ${attrs} type="text" value="${e(row[col.key])}" ${col.key==='jenis'?'list="ti-types"':''} ${['tanggalMasuk','tanggalPosisiAwal'].includes(col.key)?'inputmode="numeric"':''} placeholder="${{namaDokumen:'Nama / perihal dokumen',tanggalMasuk:'DD/MM/YYYY',jenis:'FORM, EM, IM, lainnya',nomorDokumen:'Opsional',posisiAwal:'Contoh: Finance',tanggalPosisiAwal:'DD/MM/YYYY'}[col.key]||''}">`;
    return `<td>${control}<span class="ti-cell-error" id="ti-error-${index}-${number}" hidden></span></td>`;
   }).join('')}<td class="ti-status-cell"><span id="ti-status-${index}" class="ti-row-status"></span></td><td class="ti-delete-cell"><button type="button" class="ti-delete icon-button" data-ti-delete="${index}" aria-label="Hapus baris ${index+1}" title="Hapus baris">${U.icon('close')}</button></td></tr>`).join('');
-  rows.forEach((row,index)=>D.columns.forEach((col,number)=>{const control=$(cellId(index,number));control.value=row[col.key]||'';}));
+  rows.forEach((row,index)=>D.columns.forEach((col,number)=>{const control=$(cellId(index,number));control.value=row[col.key]||'';if(['tanggalMasuk','tanggalPosisiAwal'].includes(col.key))g.TanggalInput.mount(control,col.key==='tanggalPosisiAwal'?{min:()=>rows[index].tanggalMasuk,max:()=>g.TrackingDomain.today()}:{});}));
   update();
  }
  function update(){
@@ -42,7 +43,7 @@
   $('ti-save-note').textContent=stage==='saved'?'Dokumen sudah masuk ke daftar Aktif.':stage==='pending'?'Periksa hasil sebelum mengirim data baru.':'Baris kosong tidak disimpan.';
   rows.forEach((row,index)=>{
    const errors=issues.get(index)||{};
-   D.columns.forEach((col,number)=>{const control=$(cellId(index,number)),hint=$(`ti-error-${index}-${number}`),error=errors[col.key];control.disabled=locked||(col.key==='officeId'&&!context.administrator);control.setAttribute('aria-invalid',error?'true':'false');hint.textContent=error||'';hint.hidden=!error;});
+   D.columns.forEach((col,number)=>{const control=$(cellId(index,number)),hint=$(`ti-error-${index}-${number}`),error=errors[col.key];control.disabled=locked||(col.key==='officeId'&&!context.administrator);g.TanggalInput.sync(control);control.setAttribute('aria-invalid',error?'true':'false');hint.textContent=error||'';hint.hidden=!error;});
    const status=$('ti-status-'+index),doc=stage==='saved'?receipt.dokumen[entries.findIndex(entry=>entry.index===index)]:null;
    status.textContent=doc?(doc.kode||'Tersimpan'):Object.keys(errors).length?'Perlu diperbaiki':checked.has(index)?'Siap':D.empty(row,context)?'—':'Belum diperiksa';
    status.setAttribute('data-state',doc?'saved':Object.keys(errors).length?'error':checked.has(index)?'ready':'draft');
@@ -92,7 +93,7 @@
  function close(){if(!busy)dialog.close();}
  $('ti-close').addEventListener('click',close);$('ti-cancel').addEventListener('click',close);
  dialog.addEventListener('cancel',event=>{if(busy){event.preventDefault();event.stopImmediatePropagation();}});
- dialog.addEventListener('close',()=>{if(!S.pending){rows=[];entries=[];context=null;$('ti-rows').replaceChildren();} $('tracking-add-document').focus();});
+ dialog.addEventListener('close',()=>{g.TanggalInput.close(false);if(!S.pending){rows=[];entries=[];context=null;$('ti-rows').replaceChildren();} $('tracking-add-document').focus();});
  $('ti-help-toggle').addEventListener('click',()=>{const hidden=!$('ti-help').hidden;$('ti-help').hidden=hidden;$('ti-help-toggle').setAttribute('aria-expanded',String(!hidden));});
  $('ti-add').addEventListener('click',()=>{if(!editable())return;const start=rows.length;while(rows.length<Math.min(start+5,D.maxRows))rows.push(D.blank(context));renderRows();dirty();focusCell(start,0);});
  $('ti-new').addEventListener('click',()=>{if(allowed()&&!busy&&!S.pending)reset();});

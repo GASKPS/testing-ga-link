@@ -4,7 +4,8 @@
  const columns=[{key:'tanggal',label:'Tanggal perpindahan'},{key:'tujuan',label:'Tujuan / pemegang baru',max:140},{key:'status',label:'Status baru',options:T.STATUS},{key:'catatan',label:'Catatan',max:3000}];
  const clean=v=>String(v??'').trim(),normal=v=>clean(v).normalize('NFC').toLocaleLowerCase('id-ID').replace(/\s+/g,' '),head=v=>normal(v).replace(/[^a-z0-9]/g,'');
  const defaults=(doc,today)=>({tanggal:today,tujuan:'',status:doc.statusTerakhir,catatan:''});
- const same=(a,b)=>columns.every(col=>String(a[col.key]??'')===String(b[col.key]??''));
+ function dateOrText(value){try{return I.date(value);}catch{return String(value??'');}}
+ const same=(a,b)=>columns.every(col=>col.key==='tanggal'?dateOrText(a[col.key])===dateOrText(b[col.key]):String(a[col.key]??'')===String(b[col.key]??''));
  function validate(changes,records,today){
   if(changes.size>maxRows)throw new Error('Maksimal 500 perubahan dalam satu penyimpanan. Gunakan filter untuk membagi pekerjaan.');
   const entries=[],issues=new Map(),byId=new Map(records.map(doc=>[doc.id,doc]));
