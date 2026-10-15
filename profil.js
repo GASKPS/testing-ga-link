@@ -5,34 +5,43 @@
   const initials = name => (name || '').trim().split(/\s+/).slice(0, 2).map(x => [...x][0] || '').join('').toLocaleUpperCase('id-ID');
   const isPortal = !!$('profile-page');
   const sectionNames = {profile:'Profil Saya',password:'Ganti Kata Sandi',users:'Hak Akses',offices:'Kelola Office',download:'Download'};
-  const sectionDescriptions = {profile:'Foto dan identitas akun kerja Anda.',password:'Perbarui kata sandi untuk akun Portal GA dan Web Mess.',users:'Atur peran dan akses pengguna.',offices:'Kelola daftar office dan statusnya.',download:'Unduh data sesuai akses akun Anda.'};
+  const sectionDescriptions = {profile:'Kelola foto dan lihat informasi akun Anda.',password:'Gunakan kata sandi yang sama untuk Portal GA dan Web Mess.',users:'Cari akun, lalu atur peran dan izin pengguna.',offices:'Kelola office untuk pengelompokan dokumen dan akun.',download:'Unduh laporan bulanan atau salinan data operasional.'};
+  const navigationIcons = {
+    profile:'<circle cx="12" cy="8" r="4"/><path d="M5 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/>',
+    password:'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>',
+    users:'<circle cx="9" cy="7" r="3"/><path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M17 4a3 3 0 0 1 0 6M18 14a4 4 0 0 1 3 4v2"/>',
+    offices:'<path d="M4 21V5l8-3 8 3v16M9 21v-7h6v7M8 7h1M15 7h1M8 10h1M15 10h1M2 21h20"/>',
+    download:'<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>'
+  };
+  const tabLabel = key => (isPortal ? '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+navigationIcons[key]+'</svg>' : '')+'<span>'+sectionNames[key]+'</span>';
   let host = $('profile-page');
   if (!host) { host = document.createElement('section'); host.id = 'profile-page'; host.className = 'mess-profile-page'; host.hidden = true; $('app-shell').append(host); }
   host.innerHTML = `
     <section id="ga-profile-page" class="ga-profile" aria-labelledby="ga-profile-title">
-      <div class="ga-profile-header"><div><h1 id="ga-profile-title" tabindex="-1">Profil &amp; Pengaturan</h1>${isPortal?'<p class="ga-profile-subtitle" id="ga-profile-description"></p>':''}</div><button type="button" class="ga-profile-button" id="ga-profile-back">Kembali</button></div>
+      <div class="ga-profile-header"><div>${isPortal?'<p class="ga-profile-kicker">Pengaturan akun</p>':''}<h1 id="ga-profile-title" tabindex="-1">Profil &amp; Pengaturan</h1>${isPortal?'<p class="ga-profile-subtitle" id="ga-profile-description"></p>':''}</div><button type="button" class="ga-profile-button" id="ga-profile-back">${isPortal?'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 5-7 7 7 7M5 12h14"/></svg>':''}Kembali</button></div>
       <div class="ga-profile-surface">
-      <div class="ga-profile-tabs" role="tablist" aria-label="Pengaturan akun"${isPortal?' hidden':''}>
-        <button class="ga-profile-tab" id="ga-tab-profile" type="button" role="tab" aria-selected="true" aria-controls="ga-panel-profile" data-profile-tab="profile">Profil Saya</button>
-        <button class="ga-profile-tab" id="ga-tab-password" type="button" role="tab" aria-selected="false" aria-controls="ga-panel-password" tabindex="-1" data-profile-tab="password">Ganti Kata Sandi</button>
-        <button class="ga-profile-tab" id="ga-tab-users" type="button" role="tab" aria-selected="false" aria-controls="ga-panel-users" tabindex="-1" data-profile-tab="users" hidden>Hak Akses</button>
-        <button class="ga-profile-tab" id="ga-tab-offices" type="button" role="tab" aria-selected="false" aria-controls="ga-panel-offices" tabindex="-1" data-profile-tab="offices" hidden>Kelola Office</button>
-        <button class="ga-profile-tab" id="ga-tab-download" type="button" role="tab" aria-selected="false" aria-controls="ga-panel-download" tabindex="-1" data-profile-tab="download" hidden>Download</button>
+      <div class="ga-profile-tabs" role="tablist" aria-label="Pengaturan akun">
+        <button class="ga-profile-tab" id="ga-tab-profile" type="button" role="tab" aria-selected="true" aria-controls="ga-panel-profile" data-profile-tab="profile">${tabLabel('profile')}</button>
+        <button class="ga-profile-tab" id="ga-tab-password" type="button" role="tab" aria-selected="false" aria-controls="ga-panel-password" tabindex="-1" data-profile-tab="password">${tabLabel('password')}</button>
+        <button class="ga-profile-tab" id="ga-tab-users" type="button" role="tab" aria-selected="false" aria-controls="ga-panel-users" tabindex="-1" data-profile-tab="users" hidden>${tabLabel('users')}</button>
+        <button class="ga-profile-tab" id="ga-tab-offices" type="button" role="tab" aria-selected="false" aria-controls="ga-panel-offices" tabindex="-1" data-profile-tab="offices" hidden>${tabLabel('offices')}</button>
+        <button class="ga-profile-tab" id="ga-tab-download" type="button" role="tab" aria-selected="false" aria-controls="ga-panel-download" tabindex="-1" data-profile-tab="download" hidden>${tabLabel('download')}</button>
       </div>
+      <div class="ga-profile-content">
       <div id="ga-panel-profile" class="ga-profile-body" role="tabpanel" aria-labelledby="ga-tab-profile">
         <div class="ga-profile-person"><span class="account-avatar" data-account-avatar aria-hidden="true"></span><div><strong id="ga-profile-name"></strong><span class="ga-profile-email" id="ga-profile-email"></span><span class="ga-profile-role" id="ga-profile-role"></span><span class="ga-profile-email" id="ga-profile-office"></span></div></div>
         <section class="ga-profile-section" aria-labelledby="ga-photo-title"><h3 id="ga-photo-title">Foto profil</h3>
-          <form id="ga-photo-form"><label class="ga-profile-label" for="ga-photo-file">Pilih foto</label><input id="ga-photo-file" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="ga-photo-help"><p id="ga-photo-help" class="ga-profile-help">JPG, PNG, atau WebP. Maksimal 2 MB.</p>
-          <div class="ga-photo-preview" id="ga-photo-preview" hidden><span class="account-avatar"><img id="ga-photo-new-image" alt="Pratinjau foto yang dipilih"></span><span class="ga-profile-help">Foto baru</span></div>
+          <form id="ga-photo-form"><div class="ga-photo-choice"><input class="ga-photo-file" id="ga-photo-file" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="ga-photo-help"><label class="ga-profile-button ga-photo-picker" for="ga-photo-file">Pilih foto baru</label><p id="ga-photo-help" class="ga-profile-help">JPG, PNG, atau WebP. Maksimal 2 MB.</p></div>
+          <div class="ga-photo-preview" id="ga-photo-preview" hidden><span class="account-avatar"><img id="ga-photo-new-image" alt="Pratinjau foto yang dipilih"></span><span class="ga-profile-help">Foto baru siap disimpan.</span></div>
           <div class="ga-profile-actions"><button type="submit" class="ga-profile-button primary" id="ga-photo-save" disabled>Simpan foto</button><button type="button" class="ga-profile-button danger" id="ga-photo-remove" hidden>Hapus foto</button></div><p id="ga-photo-message" class="ga-profile-message" role="status" hidden></p></form>
         </section>
       </div>
       <div id="ga-panel-password" class="ga-profile-body" role="tabpanel" aria-labelledby="ga-tab-password" hidden>
         <section class="ga-profile-section" aria-labelledby="ga-password-title"><h3 id="ga-password-title">Ganti kata sandi</h3>
-          <form id="ga-password-form"><div class="ga-profile-grid"><div class="ga-profile-field"><label class="ga-profile-label" for="ga-password-new">Password baru</label><input id="ga-password-new" type="password" required minlength="8" maxlength="128" autocomplete="new-password" aria-describedby="ga-password-help"></div><div class="ga-profile-field"><label class="ga-profile-label" for="ga-password-confirm">Konfirmasi password</label><input id="ga-password-confirm" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></div></div>
-          <p id="ga-password-help" class="ga-profile-help">Minimal 8 karakter. Password baru berlaku untuk Portal GA dan Web Mess.</p><label class="ga-access-check"><input type="checkbox" id="ga-password-show">Tampilkan password</label>
+          <form id="ga-password-form"><div class="ga-profile-grid"><div class="ga-profile-field"><label class="ga-profile-label" for="ga-password-new">Kata sandi baru</label><input id="ga-password-new" type="password" required minlength="8" maxlength="128" autocomplete="new-password" aria-describedby="ga-password-help"></div><div class="ga-profile-field"><label class="ga-profile-label" for="ga-password-confirm">Ulangi kata sandi baru</label><input id="ga-password-confirm" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></div></div>
+          <p id="ga-password-help" class="ga-profile-help">Minimal 8 karakter. Gunakan kombinasi huruf, angka, dan simbol.</p><label class="ga-access-check"><input type="checkbox" id="ga-password-show">Tampilkan kata sandi</label>
           <div class="ga-profile-code" id="ga-password-code-box" hidden><p class="ga-profile-help">Konfirmasi akun diperlukan. Minta kode, lalu masukkan kode yang diterima melalui email akun.</p><button type="button" class="ga-profile-button" id="ga-password-send-code">Kirim kode verifikasi</button><label class="ga-profile-label" for="ga-password-code">Kode verifikasi</label><input id="ga-password-code" autocomplete="one-time-code" inputmode="numeric" maxlength="32"></div>
-          <div class="ga-profile-actions"><button type="submit" class="ga-profile-button primary" id="ga-password-save">Simpan password</button></div><p id="ga-password-message" class="ga-profile-message" role="status" hidden></p></form>
+          <div class="ga-profile-actions"><button type="submit" class="ga-profile-button primary" id="ga-password-save">Simpan kata sandi</button></div><p id="ga-password-message" class="ga-profile-message" role="status" hidden></p></form>
         </section>
       </div>
       <div id="ga-panel-users" class="ga-profile-body" role="tabpanel" aria-labelledby="ga-tab-users" hidden>
@@ -51,15 +60,20 @@
       <div class="ga-profile-actions"><button class="ga-profile-button" type="button" data-access-cancel>Batal</button><button class="ga-profile-button primary" id="ga-access-save" type="submit">Simpan hak akses</button></div>
     </form>
     <div id="ga-admin-account-tools" hidden>
-      <form id="ga-rename-form" class="ga-account-tool"><h3>Nama Akun</h3><p class="ga-profile-help">Nama petugas yang muncul di portal. Email untuk masuk dan data karyawan tetap terpisah.</p><label class="ga-profile-label" for="ga-rename-name">Nama Akun / username</label><input id="ga-rename-name" required maxlength="150" autocomplete="off"><div class="ga-profile-actions"><button class="ga-profile-button primary" type="submit">Simpan Nama Akun</button></div><p id="ga-rename-message" class="ga-profile-message" role="status" hidden></p></form>
-      <form id="ga-admin-password-form" class="ga-account-tool"><h3>Atur kata sandi akun ini</h3><p class="ga-profile-help">Tidak membutuhkan kata sandi lama. Berikan kata sandi sementara kepada pemilik akun, lalu minta ia menggantinya melalui Profil &amp; Pengaturan.</p><label class="ga-profile-label" for="ga-admin-password">Kata sandi baru</label><input id="ga-admin-password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"><label class="ga-profile-label" for="ga-admin-confirm">Konfirmasi kata sandi</label><input id="ga-admin-confirm" type="password" required minlength="8" maxlength="128" autocomplete="new-password"><label class="ga-access-check"><input id="ga-admin-password-agree" type="checkbox" required> Saya memastikan akun yang dipilih sudah benar.</label><div class="ga-profile-actions"><button class="ga-profile-button primary" type="submit">Ganti kata sandi akun ini</button></div><p id="ga-admin-password-message" class="ga-profile-message" role="status" hidden></p></form>
+      <details class="ga-account-disclosure"><summary>Ubah nama akun</summary><form id="ga-rename-form" class="ga-account-tool"><p class="ga-profile-help">Nama ini ditampilkan pada portal dan catatan petugas.</p><label class="ga-profile-label" for="ga-rename-name">Nama akun</label><input id="ga-rename-name" required maxlength="150" autocomplete="off"><div class="ga-profile-actions"><button class="ga-profile-button primary" type="submit">Simpan nama</button></div><p id="ga-rename-message" class="ga-profile-message" role="status" hidden></p></form></details>
+      <details class="ga-account-disclosure"><summary>Atur ulang kata sandi</summary><form id="ga-admin-password-form" class="ga-account-tool"><p class="ga-profile-help">Buat kata sandi sementara untuk akun yang dipilih. Pemilik akun dapat menggantinya melalui pengaturan.</p><label class="ga-profile-label" for="ga-admin-password">Kata sandi baru</label><input id="ga-admin-password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"><label class="ga-profile-label" for="ga-admin-confirm">Ulangi kata sandi baru</label><input id="ga-admin-confirm" type="password" required minlength="8" maxlength="128" autocomplete="new-password"><label class="ga-access-check"><input id="ga-admin-password-agree" type="checkbox" required> Saya memastikan akun yang dipilih sudah benar.</label><div class="ga-profile-actions"><button class="ga-profile-button primary" type="submit">Ganti kata sandi akun ini</button></div><p id="ga-admin-password-message" class="ga-profile-message" role="status" hidden></p></form></details>
     </div></section></div>
       </div>
       <div id="ga-panel-offices" class="ga-profile-body" role="tabpanel" aria-labelledby="ga-tab-offices" hidden><section class="ga-profile-section"><h2>Kelola Office</h2><p class="ga-profile-help">Tambahkan office untuk pemisahan dokumen. Office nonaktif tidak tersedia untuk akun atau dokumen baru; dokumen lama tetap tersimpan.</p><form id="ga-office-form"><div class="ga-profile-field"><label class="ga-profile-label" for="ga-office-name">Nama office</label><input id="ga-office-name" required maxlength="100" autocomplete="off" placeholder="Nama office"></div><label class="ga-access-check"><input id="ga-office-active" type="checkbox" checked>Office aktif</label><div class="ga-profile-actions"><button class="ga-profile-button primary" type="submit">Tambah office</button></div></form><p id="ga-office-message" class="ga-profile-message" role="status" hidden></p><ul id="ga-office-list" class="ga-users" aria-label="Daftar office"></ul></section></div>
       <div id="ga-panel-download" class="ga-profile-body" role="tabpanel" aria-labelledby="ga-tab-download" hidden></div>
       </div>
+      </div>
     </section>`;
-  if(isPortal)for(const name of Object.keys(sectionNames)){$('ga-panel-'+name).setAttribute('role','region');$('ga-panel-'+name).setAttribute('aria-labelledby','ga-profile-title');}
+  function navigationLayout() {
+    host.querySelector('[role="tablist"]').setAttribute('aria-orientation', isPortal && window.innerWidth > 900 ? 'vertical' : 'horizontal');
+  }
+  navigationLayout();
+  window.addEventListener('resize', navigationLayout);
   let currentTab = 'profile', requestedTab = 'profile', users = [], userOffset = 0, userQuery = '', userRequest = 0, editing = null;
   let photoBlob = null, photoUrl = '', photoGeneration = 0, photoVersion = 0, photoBusy = false, passwordBusy = false, accessBusy = false;
   let pageVisible = false, previousRoute = isPortal ? '#link-kerja' : '';
@@ -121,6 +135,8 @@
   function closeAccess() {
     editing = null; $('ga-access-editor').hidden = true;
     $('ga-access-form').reset(); $('ga-rename-form').reset(); $('ga-admin-password-form').reset(); message('ga-access-message', '');message('ga-rename-message','');message('ga-admin-password-message','');
+    host.querySelectorAll('.ga-account-disclosure').forEach(detail => { detail.open = false; });
+    if (isPortal && users.length) drawUsers();
   }
   function canOpenTab(tab){
     return !!A.profile && Object.hasOwn(sectionNames,tab) && (tab!=='users'||A.superAdmin()) && (tab!=='offices'||(isPortal&&A.administrator())) && (tab!=='download'||A.canWrite());
@@ -142,6 +158,7 @@
     if (currentTab === 'password' && tab !== 'password' && !passwordBusy) resetPassword();
     currentTab = tab;
     for (const name of ['profile', 'password', 'users', 'offices', 'download']) { $('ga-tab-' + name).setAttribute('aria-selected', String(tab === name)); $('ga-tab-' + name).tabIndex = tab === name ? 0 : -1; $('ga-panel-' + name).hidden = tab !== name; }
+    if (isPortal && pageVisible && window.innerWidth <= 900) $('ga-tab-' + tab).scrollIntoView({block:'nearest',inline:'nearest'});
     syncProfileLinks();updateSectionTitle();
     if (tab === 'users') loadUsers(true);
     if(tab==='offices')window.OfficeUI.loadManager().catch(error=>message('ga-office-message',error.message,'error'));
@@ -184,11 +201,11 @@
   document.querySelectorAll('[data-profile-tab]').forEach(button => {
     button.addEventListener('click', () => selectTab(button.dataset.profileTab));
     button.addEventListener('keydown', event => {
-      if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+      if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)) return;
       event.preventDefault();
       const tabs = ['profile','password',...(A.superAdmin()?['users']:[]),...(isPortal&&A.administrator()?['offices']:[]),...(A.canWrite()?['download']:[])], index = tabs.indexOf(currentTab);
-      const tab = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs.at(-1) : tabs[(index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
-      selectTab(tab); $('ga-tab-' + tab).focus();
+      const tab = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs.at(-1) : tabs[(index + (['ArrowRight','ArrowDown'].includes(event.key) ? 1 : -1) + tabs.length) % tabs.length];
+      if (selectTab(tab)) $('ga-tab-' + tab).focus();
     });
   });
   $('ga-photo-file').addEventListener('change', async event => {
@@ -223,7 +240,7 @@
     finally { button.disabled = false; }
   });
   function drawUsers() {
-    $('ga-users-list').innerHTML = users.map(p => `<li class="ga-user-row"><div><strong>${escape(p.nama)}${p.id === A.profile?.id ? ' (Anda)' : ''}</strong><small>${escape(p.email)}</small><span class="ga-user-status${p.aktif ? '' : ' inactive'}">${escape(S.roles[p.peran])} · ${p.aktif ? 'Aktif' : 'Belum aktif'}</span></div><button class="ga-profile-button" ${!A.administrator() && ['administrator','super_admin'].includes(p.peran) ? 'disabled' : ''} type="button" data-edit-access="${escape(p.id)}" aria-label="Atur akses ${escape(p.nama)}">Atur akses</button></li>`).join('');
+    $('ga-users-list').innerHTML = users.map(p => `<li class="ga-user-row" data-selected="${p.id === editing?.id}">${isPortal?'<span class="ga-user-initials" aria-hidden="true">'+escape(initials(p.nama)||'GA')+'</span>':''}<div><strong>${escape(p.nama)}${p.id === A.profile?.id ? ' (Anda)' : ''}</strong><small>${escape(p.email)}</small><span class="ga-user-status${p.aktif ? '' : ' inactive'}">${escape(S.roles[p.peran])} · ${p.aktif ? 'Aktif' : 'Belum aktif'}</span></div><button class="ga-profile-button" ${!A.administrator() && ['administrator','super_admin'].includes(p.peran) ? 'disabled' : ''} type="button" data-edit-access="${escape(p.id)}" aria-controls="ga-access-editor" aria-expanded="${p.id === editing?.id}" aria-label="Atur akses ${escape(p.nama)}">${p.id === editing?.id?'Dipilih':'Atur akses'}</button></li>`).join('');
   }
   async function loadUsers(reset) {
     if (!A.superAdmin()) return;
@@ -251,10 +268,11 @@
     editing = users.find(p => p.id === button.dataset.editAccess); if (!editing) return;
     if (!A.administrator() && ['administrator','super_admin'].includes(editing.peran)) return;
     $('ga-rename-name').value=editing.nama; $('ga-admin-password-form').reset();message('ga-rename-message','');message('ga-admin-password-message','');
+    host.querySelectorAll('.ga-account-disclosure').forEach(detail => { detail.open = false; });
     $('ga-admin-account-tools').hidden=!A.administrator();
     $('ga-access-form').dataset.userId=editing.id; $('ga-access-name').textContent = editing.nama; $('ga-access-email').textContent = editing.email;
     $('ga-access-role').value = editing.peran; $('ga-access-active').checked = editing.aktif; $('ga-access-portal').checked = editing.akses_portal; $('ga-access-mess').checked = editing.akses_mess;
-    roleHelp();window.OfficeUI.accountOffice(editing).catch(error=>message('ga-access-message',error.message,'error')); message('ga-access-message', ''); $('ga-access-editor').hidden = false; $('ga-access-title').focus(); window.FormGuard?.clean($('ga-access-form'));
+    roleHelp();window.OfficeUI.accountOffice(editing).catch(error=>message('ga-access-message',error.message,'error')); message('ga-access-message', ''); $('ga-access-editor').hidden = false; drawUsers(); $('ga-access-title').focus(); window.FormGuard?.clean($('ga-access-form'));
   });
   $('ga-access-role').addEventListener('change', roleHelp);
   $('ga-access-form').addEventListener('submit', async event => {

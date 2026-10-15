@@ -1,0 +1,75 @@
+/* Form dan input Excel memakai popup SKC yang sama. */
+body[data-area="portal"] #skc-dialog[open] { display:flex; flex-direction:column; overflow:hidden; }
+body[data-area="portal"] #skc-dialog > .dialog-heading { flex:none; }
+body[data-area="portal"] #skc-dialog > #skc-form { overflow:auto; min-height:0; }
+body[data-area="portal"] #skc-dialog .si-mode-bar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 24px; border-bottom:1px solid var(--line); flex:none; }
+body[data-area="portal"] #skc-dialog .si-mode-switch { display:inline-flex; gap:3px; padding:3px; border:1px solid var(--line); background:var(--surface-2); border-radius:6px; flex:none; }
+body[data-area="portal"] #skc-dialog .si-mode-switch button { min-height:34px; min-width:68px; padding:6px 14px; background:transparent; color:var(--muted); border:1px solid transparent; border-radius:4px; font-size:13px; }
+body[data-area="portal"] #skc-dialog .si-mode-switch button[aria-pressed="true"] { color:var(--text); background:var(--surface); border-color:var(--line); font-weight:550; }
+body[data-area="portal"] #skc-dialog #si-mode-note { color:var(--muted); font-size:12px; line-height:1.5; }
+body[data-area="portal"] #skc-dialog.skc-excel-active { width:min(1340px,calc(100vw - 48px)); max-width:1340px; height:min(780px,calc(100dvh - 48px)); max-height:calc(100dvh - 48px); border-radius:10px; }
+body[data-area="portal"] #skc-excel-form { display:flex; flex-direction:column; overflow:hidden; min-height:0; flex:1; }
+body[data-area="portal"] #skc-dialog .si-toolbar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 24px; flex:none; }
+body[data-area="portal"] #skc-dialog .si-toolbar .button { min-height:36px; font-size:12px; padding:8px 12px; }
+body[data-area="portal"] #skc-dialog .si-text-button { padding:8px 0; background:transparent; color:var(--accent); font-size:12px; }
+body[data-area="portal"] #skc-dialog .si-help { padding:14px 18px; margin:0 24px 16px; background:var(--surface-2); color:var(--muted); border:1px solid var(--line); border-radius:6px; font-size:13px; line-height:1.7; flex:none; max-height:180px; overflow:auto; }
+body[data-area="portal"] #skc-dialog .si-help p { margin:0 0 8px; }
+body[data-area="portal"] #skc-dialog .si-help p:last-child { margin-bottom:0; }
+body[data-area="portal"] #skc-dialog .si-message { margin:0 24px 16px; padding:12px 14px; border:1px solid var(--line-strong); border-radius:6px; background:var(--accent-soft); color:var(--text); font-size:13px; line-height:1.6; flex:none; max-height:140px; overflow:auto; }
+body[data-area="portal"] #skc-dialog .si-message[data-tone="error"] { color:#983b30; border-color:#e5b8b0; background:#fff3f0; }
+body[data-area="portal"] #skc-dialog .si-message[data-tone="success"] { color:#316344; border-color:#bed8c6; background:#edf6f0; }
+body[data-area="portal"] #skc-dialog .si-frame { flex:1; min-height:140px; overflow:auto; overscroll-behavior:contain; border-block:1px solid var(--line); background:var(--surface); scrollbar-gutter:stable; }
+body[data-area="portal"] #skc-dialog .si-table { display:table; width:1368px; min-width:100%; table-layout:fixed; border-collapse:separate; border-spacing:0; }
+body[data-area="portal"] #skc-dialog .si-table :is(th,td) { margin:0; padding:0; border:0; border-right:1px solid var(--line); border-bottom:1px solid var(--line); text-align:left; vertical-align:top; background:var(--surface); }
+body[data-area="portal"] #skc-dialog .si-table thead th { position:sticky; top:0; z-index:5; padding:13px 11px; background:var(--surface-2); color:var(--text); font-size:12px; font-weight:550; white-space:nowrap; }
+body[data-area="portal"] #skc-dialog .si-table thead :is(th:nth-child(2),th:nth-child(5),th:nth-child(6),th:nth-child(7)) { background:var(--accent-soft); }
+body[data-area="portal"] #skc-dialog .si-table thead th:first-child { left:0; z-index:7; text-align:center; }
+body[data-area="portal"] #skc-dialog .si-table tbody .si-number { position:sticky; left:0; z-index:3; padding:16px 5px; text-align:center; background:var(--surface-2); font-size:11px; font-weight:500; color:var(--muted); font-variant-numeric:tabular-nums; }
+body[data-area="portal"] #skc-dialog .si-table input { display:block; width:100%; min-width:0; height:52px; min-height:52px; margin:0; border:2px solid transparent; border-radius:0; padding:12px 9px; background:var(--surface); color:var(--text); font-size:13px; line-height:1.6; transition:none; }
+body[data-area="portal"] #skc-dialog .si-table input:hover { background:var(--accent-soft); }
+body[data-area="portal"] #skc-dialog .si-table input:focus { outline:0; border-color:var(--accent); background:var(--surface); }
+body[data-area="portal"] #skc-dialog .si-table input[aria-invalid="true"] { background:#fff3f0; border-color:#cf7b6e; }
+body[data-area="portal"] #skc-dialog .si-table input:disabled { background:var(--surface-2); color:var(--muted); cursor:default; }
+body[data-area="portal"] #skc-dialog .si-table .ga-date-field > input { padding-right:40px; }
+body[data-area="portal"] #skc-dialog .si-table .si-identity { padding:16px 12px; font-size:13px; line-height:1.6; overflow-wrap:anywhere; }
+body[data-area="portal"] #skc-dialog .si-table .si-job { color:var(--muted); font-size:12px; }
+body[data-area="portal"] #skc-dialog .si-cell-error { display:block; padding:3px 10px 10px; font-size:11px; color:#983b30; line-height:1.5; overflow-wrap:anywhere; }
+body[data-area="portal"] #skc-dialog tr[data-state="error"] .si-number { box-shadow:inset 3px 0 #b65d4e; }
+body[data-area="portal"] #skc-dialog tr[data-state="saved"] .si-number { box-shadow:inset 3px 0 #508364; }
+body[data-area="portal"] #skc-dialog .si-table .si-delete-cell { padding:8px; }
+body[data-area="portal"] #skc-dialog .si-delete-cell .icon-button { width:36px; height:36px; }
+body[data-area="portal"] #skc-dialog .si-delete-cell svg { width:16px; height:16px; }
+body[data-area="portal"] #skc-dialog .si-summary { display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:space-between; padding:11px 24px; color:var(--muted); font-size:11px; flex:none; }
+body[data-area="portal"] #skc-dialog .si-summary strong { color:var(--text); font-size:12px; font-weight:500; }
+body[data-area="portal"] #skc-dialog .si-actions { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; padding:16px 24px; border-top:1px solid var(--line); background:var(--surface); flex:none; }
+body[data-area="portal"] #skc-dialog .si-actions > span { color:var(--muted); font-size:12px; }
+body[data-area="portal"] #skc-dialog .si-actions > div { display:flex; flex-wrap:wrap; gap:8px; margin-left:auto; }
+body[data-area="portal"] #skc-dialog .si-actions .button { font-size:13px; min-height:40px; padding:9px 13px; }
+body[data-area="portal"] #skc-dialog button:disabled { opacity:.5; cursor:default; }
+html[data-theme="dark"] body[data-area="portal"] #skc-dialog .si-text-button { color:#b6d5f5; }
+html[data-theme="dark"] body[data-area="portal"] #skc-dialog .si-message[data-tone="error"],
+html[data-theme="dark"] body[data-area="portal"] #skc-dialog .si-table input[aria-invalid="true"] { background:#482e31; color:#ffd0c8; border-color:#995e59; }
+html[data-theme="dark"] body[data-area="portal"] #skc-dialog .si-cell-error { color:#ffd0c8; }
+html[data-theme="dark"] body[data-area="portal"] #skc-dialog .si-message[data-tone="success"] { background:#29463c; color:#c2edd9; border-color:#4b705e; }
+@media(max-width:650px) {
+ body[data-area="portal"] #skc-dialog.skc-excel-active { width:calc(100vw - 20px); height:calc(100dvh - 24px); max-height:calc(100dvh - 24px); margin:auto; border:1px solid var(--line); border-radius:8px; }
+ body[data-area="portal"] #skc-dialog .si-mode-bar { align-items:flex-start; padding:12px 16px; }
+ body[data-area="portal"] #skc-dialog .si-mode-switch button { min-height:40px; min-width:60px; }
+ body[data-area="portal"] #skc-dialog #si-mode-note { font-size:11px; }
+ body[data-area="portal"] #skc-dialog .si-toolbar { padding:12px 16px; }
+ body[data-area="portal"] #skc-dialog .si-toolbar .button { min-height:44px; }
+ body[data-area="portal"] #skc-dialog .si-help,
+ body[data-area="portal"] #skc-dialog .si-message { margin-inline:16px; max-height:120px; }
+ body[data-area="portal"] #skc-dialog .si-table thead { display:table-header-group; }
+ body[data-area="portal"] #skc-dialog .si-table tbody { display:table-row-group; padding:0; background:transparent; }
+ body[data-area="portal"] #skc-dialog .si-table tr { display:table-row; padding:0; border:0; border-radius:0; }
+ body[data-area="portal"] #skc-dialog .si-table :is(th,td) { display:table-cell; position:static; }
+ body[data-area="portal"] #skc-dialog .si-table thead th { position:sticky; }
+ body[data-area="portal"] #skc-dialog .si-table tbody .si-number { position:sticky; }
+ body[data-area="portal"] #skc-dialog .si-table :is(th,td):before { content:none; }
+ body[data-area="portal"] #skc-dialog .si-table input { font-size:16px; }
+ body[data-area="portal"] #skc-dialog .si-summary { padding:10px 16px; }
+ body[data-area="portal"] #skc-dialog .si-actions { padding:12px 16px; gap:9px; }
+ body[data-area="portal"] #skc-dialog .si-actions > span { display:none; }
+ body[data-area="portal"] #skc-dialog .si-actions .button { min-height:44px; }
+}
