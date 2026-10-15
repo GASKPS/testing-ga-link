@@ -6,9 +6,9 @@
  const signature=()=>{const p=A.profile;return p?[p.id,p.peran,p.office_id,p.aktif,p.akses_portal].join('|'):'';};
  const owner=()=>A.profile?.id||'';
  function changed(){document.dispatchEvent(new CustomEvent('tracking:input-mode',{detail:{mode}}));}
- function marker(value){try{const key=prefix+(value?.owner||owner());if(value)g.sessionStorage.setItem(key,JSON.stringify({owner:value.owner,key:value.key,count:value.count,created:value.created}));else g.sessionStorage.removeItem(key);}catch{}}
+ function marker(value){try{const key=prefix+(value?.owner||owner());if(value)g.sessionStorage.setItem(key,JSON.stringify({owner:value.owner,key:value.key,count:value.count,created:value.created,version:value.version}));else g.sessionStorage.removeItem(key);return true;}catch{return false;}}
  function restore(){
-  try{const value=JSON.parse(g.sessionStorage.getItem(prefix+owner())||'null');if(value&&value.owner===owner()&&/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(value.key)&&Number.isInteger(value.count)&&value.count>0&&value.count<=D.maxRows)return {...value,rows:null};}catch{}
+  try{const value=JSON.parse(g.sessionStorage.getItem(prefix+owner())||'null');if(value&&value.owner===owner()&&/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(value.key)&&Number.isInteger(value.count)&&value.count>0&&value.count<=D.maxRows)return {...value,version:value.version===29?29:28,rows:null};}catch{}
   return null;
  }
  function sync(){const next=signature();if(identity!==next){identity=next;generation++;mode='form';loaded=false;loading=null;preferenceBusy=false;batchBusy=false;pending=owner()?restore():null;changed();}return generation;}
@@ -40,7 +40,7 @@
   requireWriter();if(batchBusy)throw new Error('Penyimpanan sedang diproses.');if(!pending)throw new Error('Tidak ada penyimpanan yang perlu diperiksa.');if(!check&&!pending.rows)throw new Error('Periksa penyimpanan terakhir sebelum mengisi ulang.');
   const seq=generation,p=pending;batchBusy=true;
   try{
-   const value=check?await A.rpc('status_input_dokumen28',{p_kunci:p.key,p_pemilik:p.owner},true):await A.rpc('simpan_dokumen_excel28',{p_rows:p.rows,p_kunci:p.key,p_pemilik:p.owner},true);
+   const value=check?await A.rpc(p.version===29?'status_input_tracking29':'status_input_dokumen28',{p_kunci:p.key,p_pemilik:p.owner,...(p.version===29?{p_jenis:'buat'}:{})},true):await A.rpc(p.version===29?'simpan_dokumen_excel29':'simpan_dokumen_excel28',{p_rows:p.rows,p_kunci:p.key,p_pemilik:p.owner},true);
    if(!current(seq,p.owner))throw stale();
    if(check&&value===null){marker(null);pending=null;return null;}
    const result=receipt(value,p);marker(null);pending=null;return result;
@@ -52,7 +52,7 @@
  }
  function save(rows){
   requireWriter();if(pending)throw new Error('Periksa penyimpanan sebelumnya dahulu.');if(!Array.isArray(rows)||!rows.length||rows.length>D.maxRows)throw new Error('Isi 1 sampai 100 dokumen.');
-  pending={owner:owner(),key:uuid(),count:rows.length,created:new Date().toISOString(),rows:JSON.parse(JSON.stringify(rows))};marker(pending);return run(false);
+  pending={owner:owner(),key:uuid(),count:rows.length,created:new Date().toISOString(),version:29,rows:JSON.parse(JSON.stringify(rows))};if(!marker(pending)){pending=null;throw new Error('Browser belum dapat menyimpan kunci kiriman. Izinkan penyimpanan sesi atau buka Portal di tab browser lain.');}return run(false);
  }
  document.addEventListener('akses:berubah',()=>{sync();load().catch(()=>{});});
  g.TrackingInputStore=Object.freeze({load,setMode,save,retry:()=>run(false),check:()=>run(true),get mode(){sync();return mode;},get pending(){sync();return pending?{key:pending.key,owner:pending.owner,count:pending.count,canRetry:!!pending.rows}:null;}});

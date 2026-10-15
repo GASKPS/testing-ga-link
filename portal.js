@@ -111,6 +111,7 @@
   }
   $('move-status').insertAdjacentHTML('beforeend', D.STATUS.map(s => `<option>${e(s)}</option>`).join(''));
   function selectTab(next) {
+    if(next!==tab&&window.TrackingSheetUI?.leave()===false)return;
     tab = next; documentPage = 1;listRequest++;documents=[];snapshot={...snapshot,total:0};
     document.querySelectorAll('[data-tab]').forEach(button => {
       const selected = button.dataset.tab === tab;
@@ -124,7 +125,7 @@
     $('tracking-description').textContent = skc ? 'Catat pengambilan surat keterangan cuti karyawan.' : 'Pantau posisi dokumen dan setiap perpindahannya.';
     $('tracking-list-caption').textContent = skc ? 'Surat keterangan cuti' : 'Daftar dokumen';
     if (!skc) { $('document-results').setAttribute('aria-labelledby', tab === 'active' ? 'tab-active' : 'tab-done'); fillStatuses(); }
-    render();if(!skc)refresh().catch(error=>showToast(error.message));
+    render();document.dispatchEvent(new CustomEvent('tracking:tab-changed',{detail:{tab}}));if(!skc)refresh().catch(error=>showToast(error.message));
   }
   document.querySelectorAll('[data-tab]').forEach(button => {
     button.addEventListener('click', () => selectTab(button.dataset.tab));
@@ -192,13 +193,13 @@
     const inputUser=Akses.profile?.id;
     await window.TrackingInputStore?.load().catch(()=>{});
     if(!Akses.canWrite()||Akses.profile?.id!==inputUser)return;
-    if(window.TrackingInputUI?.mode==='excel')return window.TrackingInputUI.open();
+    if(window.TrackingInputStore?.pending||window.TrackingInputUI?.mode==='excel')return window.TrackingInputUI.open();
     editingDocument = null;
     $('document-form').reset(); $('doc-date').value = D.today(); $('doc-date').max = '';
     $('document-form-kicker').textContent = 'DOKUMEN BARU'; $('document-dialog-title').textContent = 'Tambah dokumen'; $('document-save').textContent = 'Simpan Dokumen';
     await window.OfficeUI.documentOffice();
     if(!Akses.administrator()&&!Akses.profile?.office_id)return showToast('Office akun belum ditetapkan. Hubungi Administrator.');
-    updateOtherType(); formError('document-error', ''); openDialog('document-dialog'); $('doc-name').focus();
+    updateOtherType();window.TrackingInitialUI?.configure(false); formError('document-error', ''); openDialog('document-dialog'); $('doc-name').focus();
   }
   async function editDocument() {
     const doc = await repository.get(selectedId), form = $('document-form'); form.reset();
@@ -207,7 +208,7 @@
     await window.OfficeUI.documentOffice(doc.officeId);
     updateOtherType(); $('doc-other-type').value = doc.jenisDokumenLainnya || ''; $('doc-date').max = doc.tanggalPerpindahanPertama || '';
     $('document-form-kicker').textContent = doc.kode; $('document-dialog-title').textContent = 'Edit dokumen'; $('document-save').textContent = 'Simpan Perubahan';
-    formError('document-error', ''); openDialog('document-dialog'); $('doc-name').focus();
+    window.TrackingInitialUI?.configure(true);formError('document-error', ''); openDialog('document-dialog'); $('doc-name').focus();
   }
   $('edit-document').addEventListener('click', () => editDocument().catch(error => showToast(error.message)));
   function updateOtherType() {
@@ -228,12 +229,12 @@
     button.disabled = true;
     try {
       const editing = editingDocument, data = Object.fromEntries(new FormData(form));
-      const doc = editing ? await repository.update(editing.id, { ...data, expectedRevision: editing.revision }) : await repository.create(data);
-      window.FormGuard?.clean(form); closeDialog('document-dialog'); await refresh();
+      const doc = editing ? await repository.update(editing.id, { ...data, expectedRevision: editing.revision }) : window.TrackingInitialUI?.hasInitial()?await window.TrackingInitialUI.save(data):await repository.create(data);
+      window.FormGuard?.clean(form); closeDialog('document-dialog');document.dispatchEvent(new CustomEvent('tracking:document-changed')); await refresh();
       if (editing) { renderDetail(doc); $('document-edit-success').hidden = false; }
-      else { resetFilters(); selectTab('active'); showToast('Dokumen berhasil disimpan.'); }
+      else { resetFilters(); selectTab(D.isFinal(doc.statusTerakhir)?'done':'active'); showToast('Dokumen berhasil disimpan.'); }
     } catch (error) { formError('document-error', error.message); }
-    finally { button.disabled = false; }
+    finally { button.disabled = false;window.TrackingInitialUI?.sync(); }
   });
   function renderDetail(doc) {
     detailDocument = doc; historyPage = 1;historyRequest++;
@@ -252,8 +253,8 @@
   function renderHistory() {
     const doc = detailDocument; if (!doc) return;
     const page = pages.range(doc.historyTotal||0, historyPage); historyPage = page.page;
-    $('history-count').textContent = `${doc.historyTotal||0} perpindahan`;
-    $('history').innerHTML = doc.history.length ? `<ol class="timeline">${doc.history.map(event => `<li class="history-event"><div class="event-heading"><strong>Perpindahan dokumen</strong><time datetime="${e(event.tanggalPerpindahan)}">${e(dateText(event.tanggalPerpindahan))}</time></div><div class="event-route"><span>${e(event.posisiSebelum || event.dari)}</span>${icon('arrow')}<span>${e(event.kepada)}</span></div>${status(event.status)}<small class="event-actor">Dicatat oleh ${e(event.namaPetugas)} · ${e(new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jayapura',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(event.dicatatPada)))} WIT</small>${event.notePerpindahan ? `<p class="event-note">${e(event.notePerpindahan)}</p>` : ''}</li>`).join('')}</ol>` : '<p class="history-empty">Dokumen baru diterima. Belum ada perpindahan yang dicatat.</p>';
+    $('history-count').textContent = `${doc.historyTotal||0} catatan`;
+    $('history').innerHTML = doc.history.length ? `<ol class="timeline">${doc.history.map(event => `<li class="history-event"><div class="event-heading"><strong>${event.notePerpindahan==='Posisi saat mulai dicatat.'?'Posisi saat mulai dicatat':'Perpindahan dokumen'}</strong><time datetime="${e(event.tanggalPerpindahan)}">${e(dateText(event.tanggalPerpindahan))}</time></div><div class="event-route">${event.notePerpindahan==='Posisi saat mulai dicatat.'?'':'<span>'+e(event.posisiSebelum || event.dari)+'</span>'+icon('arrow')}<span>${e(event.kepada)}</span></div>${status(event.status)}<small class="event-actor">Dicatat oleh ${e(event.namaPetugas)} · ${e(new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jayapura',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(event.dicatatPada)))} WIT</small>${event.notePerpindahan&&event.notePerpindahan!=='Posisi saat mulai dicatat.' ? `<p class="event-note">${e(event.notePerpindahan)}</p>` : ''}</li>`).join('')}</ol>` : '<p class="history-empty">Dokumen baru diterima. Belum ada perpindahan yang dicatat.</p>';
     pages.render($('history-pagination'), page, async next => { const id=selectedId,seq=++historyRequest;try{const h=await repository.historyPage(id,next);if(seq!==historyRequest||selectedId!==id)return;detailDocument={...detailDocument,...h};historyPage=h.historyPage;renderHistory();$('history').scrollIntoView({block:'start'});}catch(error){showToast(error.message);} });
   }
   async function showDetail(id) { const doc = await repository.get(id); selectedId = id; renderDetail(doc); openDialog('detail-dialog'); }
@@ -274,7 +275,7 @@
     button.disabled = true;
     try {
       const doc = await repository.move(selectedId, { ...Object.fromEntries(new FormData(form)), expectedRevision: movementRevision });
-      window.FormGuard?.clean(form); closeDialog('movement-dialog'); await refresh(); renderDetail(doc);
+      window.FormGuard?.clean(form); closeDialog('movement-dialog');document.dispatchEvent(new CustomEvent('tracking:document-changed')); await refresh(); renderDetail(doc);
       if (D.isFinal(doc.statusTerakhir)) { resetFilters(); selectTab('done'); }
       // A toast outside a modal is not visible above the top layer. The updated
       // history is immediate feedback while the detail dialog remains open.
@@ -295,5 +296,6 @@
   });
   document.addEventListener('data:muat-ulang',()=>refresh().catch(error=>showToast(error.message)));
   document.addEventListener('tracking:batch-saved',()=>{resetFilters();selectTab('active');});
+  document.addEventListener('tracking:batch-moved',()=>refresh().catch(error=>showToast(error.message)));
   route(); fillStatuses(); updateDate(); refresh().catch(error => showToast(error.message));
 })();

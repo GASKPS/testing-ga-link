@@ -31,7 +31,7 @@
   <script defer src="skc-store.js?v=15"></script>
   <script defer src="tracking-pdf.js?v=21"></script>
   <script defer src="paginasi.js?v=15"></script>
-  <script defer src="portal.js?v=28"></script>
+  <script defer src="portal.js?v=29"></script>
   <script defer src="data-admin.js?v=15"></script>
   <script defer src="employees.js?v=15"></script>
   <script defer src="devices.js?v=15"></script>
@@ -58,10 +58,15 @@
   <script defer src="stok.js?v=20"></script>
   <link rel="stylesheet" href="akun-menu.css?v=26">
   <script defer src="akun-menu.js?v=26"></script>
-  <link rel="stylesheet" href="tracking-input.css?v=28">
-  <script defer src="tracking-input-domain.js?v=28"></script>
-  <script defer src="tracking-input-store.js?v=28"></script>
-  <script defer src="tracking-input.js?v=28"></script>
+  <link rel="stylesheet" href="tracking-input.css?v=29">
+  <script defer src="tracking-input-domain.js?v=29"></script>
+  <script defer src="tracking-input-store.js?v=29"></script>
+  <script defer src="tracking-input.js?v=29"></script>
+  <script defer src="tracking-initial.js?v=29"></script>
+  <script defer src="tracking-sheet-domain.js?v=29"></script>
+  <script defer src="tracking-sheet-store.js?v=29"></script>
+  <script defer src="tracking-sheet.js?v=29"></script>
+  <link rel="stylesheet" href="tracking-sheet.css?v=29">
 </head>
 <body data-area="portal">
 <section class="auth-screen" id="auth-screen" aria-labelledby="auth-title"><div class="auth-card">
@@ -133,7 +138,7 @@
     </header>
     <main id="main-content" tabindex="-1">
       <section class="tracking-page" id="tracking-page" aria-labelledby="tracking-title">
-        <div class="page-heading"><div><p class="page-kicker">ADMINISTRASI</p><h1 id="tracking-title">Tracking dokumen</h1><p class="page-description" id="tracking-description">Pantau posisi dokumen dan setiap perpindahannya.</p></div><div id="tracking-input-options" data-tulis><div class="ti-mode-switch" role="group" aria-label="Cara input dokumen"><button type="button" id="tracking-mode-form" aria-pressed="true">Form</button><button type="button" id="tracking-mode-excel" aria-pressed="false">Excel</button></div><button class="button button-primary" id="tracking-add-document" type="button" data-action="new-document"><span data-icon="plus"></span><span>Tambah Dokumen</span></button></div><button data-tulis class="button button-primary" id="tracking-add-skc" type="button" data-skc-action="new" hidden><span data-icon="plus"></span>Tambah SKC</button></div>
+        <div class="page-heading"><div><p class="page-kicker">ADMINISTRASI</p><h1 id="tracking-title">Tracking dokumen</h1><p class="page-description" id="tracking-description">Pantau posisi dokumen dan setiap perpindahannya.</p></div><div id="tracking-input-options" data-tulis><div class="ti-mode-switch" role="group" aria-label="Cara kerja Tracking Dokumen"><button type="button" id="tracking-mode-form" aria-pressed="true">Form</button><button type="button" id="tracking-mode-excel" aria-pressed="false">Excel</button></div><button class="button button-primary" id="tracking-add-document" type="button" data-action="new-document"><span data-icon="plus"></span><span>Tambah Dokumen</span></button></div><button data-tulis class="button button-primary" id="tracking-add-skc" type="button" data-skc-action="new" hidden><span data-icon="plus"></span>Tambah SKC</button></div>
         <div class="preview-notice" data-preview-notice hidden><span data-icon="info"></span><p>Pratinjau tampilan. Login dan penyimpanan aktif setelah proyek Supabase baru dihubungkan.</p></div>
         <section class="stats" id="document-stats" aria-label="Ringkasan dokumen">
           <div class="stat"><div class="stat-top"><span>Dokumen aktif</span><span data-icon="files"></span></div><strong id="stat-active">0</strong></div>
@@ -144,7 +149,7 @@
         <section class="documents-panel" aria-label="Dokumen dan pengambilan SKC">
           <div class="panel-tabs-row"><div class="document-tabs" role="tablist" aria-label="Kelompok dokumen"><button id="tab-active" class="document-tab active" role="tab" aria-selected="true" aria-controls="document-results" type="button" data-tab="active">Aktif <span id="active-count">0</span></button><button id="tab-done" class="document-tab" role="tab" aria-selected="false" aria-controls="document-results" tabindex="-1" type="button" data-tab="done">Selesai <span id="done-count">0</span></button><button id="tab-skc" class="document-tab" role="tab" aria-selected="false" aria-controls="skc-panel" tabindex="-1" type="button" data-tab="skc">Ambil SKC <span id="skc-count">0</span></button></div><div class="tracking-list-actions"><span class="list-caption" id="tracking-list-caption">Daftar dokumen</span><button class="button button-secondary" id="download-active-pdf" type="button" disabled><span data-icon="download"></span><span id="download-pdf-label">Unduh PDF</span></button></div></div>
           <div class="filter-bar" id="document-filters"><div class="search-field"><span data-icon="search"></span><label class="sr-only" for="search">Cari dokumen</label><input id="search" type="search" placeholder="Cari nama, nomor, atau posisi dokumen…" autocomplete="off"></div><div class="filter-select"><label class="sr-only" for="filter-bu">Filter BU</label><select id="filter-bu"><option value="">Semua BU</option><option>KPS</option><option>HJF</option><option>OST</option><option>Lainnya</option></select></div><div class="filter-select"><label class="sr-only" for="filter-status">Filter status</label><select id="filter-status"><option value="">Semua status</option></select></div><div class="filter-select"><label for="filter-office">Office</label><select id="filter-office"><option value="">Semua office</option></select></div><div class="filter-select"><label for="filter-from">Dari tanggal</label><input id="filter-from" type="date"></div><div class="filter-select"><label for="filter-to">Sampai tanggal</label><input id="filter-to" type="date"></div></div>
-          <p id="filter-date-error" class="form-error" role="alert" hidden>Tanggal awal tidak boleh setelah tanggal akhir.</p><p class="form-error" id="tracking-office-notice" role="status" hidden></p><div id="document-results" role="tabpanel" aria-labelledby="tab-active" tabindex="0"><div class="empty-state"><span class="empty-symbol" data-icon="files"></span><h2>Belum ada dokumen aktif</h2><p>Tambahkan dokumen untuk mulai mencatat perjalanan approval.</p><button class="button button-secondary" type="button" data-action="new-document"><span data-icon="plus"></span>Tambah Dokumen</button></div></div>
+          <p id="filter-date-error" class="form-error" role="alert" hidden>Tanggal awal tidak boleh setelah tanggal akhir.</p><p class="form-error" id="tracking-office-notice" role="status" hidden></p><section id="tracking-sheet-panel" role="tabpanel" aria-labelledby="tab-active" hidden></section><div id="document-results" role="tabpanel" aria-labelledby="tab-active" tabindex="0"><div class="empty-state"><span class="empty-symbol" data-icon="files"></span><h2>Belum ada dokumen aktif</h2><p>Tambahkan dokumen untuk mulai mencatat perjalanan approval.</p><button class="button button-secondary" type="button" data-action="new-document"><span data-icon="plus"></span>Tambah Dokumen</button></div></div>
           <footer class="table-footer" id="document-footer"><span id="result-count" role="status" aria-live="polite">0 dokumen</span><div class="pagination" id="document-pagination" hidden></div></footer><p id="download-pdf-status" class="export-status" role="status" aria-live="polite" hidden></p>
           <div id="skc-panel" role="tabpanel" aria-labelledby="tab-skc" hidden>
             <div class="skc-panel-heading"><h2>Pengambilan SKC</h2><p>Surat keterangan cuti karyawan</p></div>
@@ -243,7 +248,8 @@
           <div class="field span-two" id="other-type-field" hidden><label for="doc-other-type">Jenis dokumen lainnya <span class="required">*</span></label><input id="doc-other-type" name="jenisDokumenLainnya" maxlength="100" disabled></div>
           <div class="field span-two"><label for="doc-source">Office <span class="required">*</span></label><select id="doc-source" name="officeId" required><option value="">Pilih office</option></select><small id="doc-source-help">Office dokumen.</small></div>
           <div class="field span-two note-field"><label for="doc-note">Note dokumen <span class="optional">opsional</span></label><textarea id="doc-note" name="noteDokumen" rows="3" maxlength="3000"></textarea><small>Komentar atau keterangan mengenai dokumen.</small></div>
-        </div><p class="form-error" id="document-error" role="alert" hidden></p>
+          <section class="span-two ti-initial-fields" id="doc-initial-fields" aria-labelledby="doc-initial-title"><h3 id="doc-initial-title">Kondisi saat mulai dicatat</h3><p>Dokumen sudah berjalan? Isi posisi dan status saat ini agar langsung tercatat dalam satu kali simpan. Ketiganya boleh kosong untuk dokumen yang baru diterima.</p><div class="form-grid"><div class="field span-two"><label for="doc-initial-position">Posisi saat ini</label><input id="doc-initial-position" name="posisiAwal" maxlength="140" placeholder="Contoh: Finance" autocomplete="off"></div><div class="field"><label for="doc-initial-date">Sejak tanggal</label><input id="doc-initial-date" name="tanggalPosisiAwal" type="date"></div><div class="field"><label for="doc-initial-status">Status saat ini</label><select id="doc-initial-status" name="statusAwal"><option value="">Pilih status</option><option>Dititipkan</option><option>Menunggu Approval</option><option>Sedang Diproses</option><option>Perlu Revisi</option><option>Siap Diambil</option><option>Sudah Diambil</option><option>Selesai</option><option>Dibatalkan</option></select></div></div></section>
+        </div><p class="form-error" id="document-error" role="alert" hidden></p><div id="doc-initial-recovery" class="ti-initial-recovery" hidden><p>Hasil penyimpanan belum dikonfirmasi. Periksa sebelum mengirim dokumen baru.</p><button class="button button-secondary" id="doc-initial-check" type="button">Periksa penyimpanan</button><button class="button button-secondary" id="doc-initial-retry" type="button">Kirim ulang</button></div>
       </div>
       <div class="dialog-actions"><button type="button" class="button button-secondary" data-close="document-dialog">Batal</button><button type="submit" id="document-save" class="button button-primary">Simpan Dokumen</button></div>
     </form>
