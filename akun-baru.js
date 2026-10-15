@@ -1,0 +1,44 @@
+/* Account creation stays on the server; the signed-in session is preserved. */
+(function(g){
+ 'use strict';
+ const A=g.Akses,$=id=>document.getElementById(id),button=$('ga-create-user');if(!button)return;
+ const dialog=document.createElement('dialog');dialog.id='ga-create-dialog';dialog.className='ga-create-dialog';dialog.setAttribute('aria-labelledby','ga-create-title');
+ dialog.innerHTML=`<div class="ga-create-heading"><div><h2 id="ga-create-title">Buat akun</h2><p>Tambahkan akun untuk Portal GA dan Web Mess.</p></div><button type="button" id="ga-create-close" aria-label="Tutup buat akun">×</button></div><form id="ga-create-form"><div class="ga-create-body"><div class="ga-profile-grid"><div><label for="ga-create-name">Nama akun</label><input id="ga-create-name" name="nama" required maxlength="150" autocomplete="off"></div><div><label for="ga-create-email">Email untuk masuk</label><input id="ga-create-email" name="email" type="email" required maxlength="254" autocomplete="off"></div><div><label for="ga-create-password">Kata sandi awal</label><input id="ga-create-password" name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></div><div><label for="ga-create-confirm">Ulangi kata sandi</label><input id="ga-create-confirm" name="confirm" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></div></div><label class="ga-access-check"><input type="checkbox" id="ga-create-show">Tampilkan kata sandi</label><div class="ga-profile-grid"><div><label for="ga-create-role">Peran</label><select id="ga-create-role" name="peran"><option value="pembaca">Pembaca</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option><option value="administrator">Administrator</option></select></div><div><label for="ga-create-office">Office</label><select id="ga-create-office" name="officeId" required><option value="">Pilih office</option></select></div></div><p id="ga-create-role-help" class="ga-profile-help"></p><div class="ga-create-checks"><label class="ga-access-check"><input type="checkbox" id="ga-create-active" checked>Akun aktif</label><label class="ga-access-check"><input type="checkbox" id="ga-create-portal" checked>Akses Portal GA</label><label class="ga-access-check"><input type="checkbox" id="ga-create-mess">Akses Web Mess</label></div><p class="ga-profile-help">Pemilik akun dapat mengganti kata sandi melalui menu pengaturan setelah masuk.</p><p id="ga-create-message" class="ga-profile-message" role="status" aria-live="polite" hidden></p></div><div class="ga-create-actions"><button type="button" id="ga-create-cancel" class="ga-profile-button">Tutup</button><button type="submit" id="ga-create-save" class="ga-profile-button primary">Buat akun</button></div></form>`;
+ document.body.append(dialog);const form=$('ga-create-form');let busy=false,opening=false,identity='',sequence=0,pending=null;
+ const key=()=>{const p=A.profile;return p?[p.id,p.peran,p.aktif].join('|'):'';};
+ const message=(text,tone='')=>{const el=$('ga-create-message');el.textContent=text;el.className='ga-profile-message '+tone;el.hidden=!text;};
+ function role(){const value=$('ga-create-role').value,high=['administrator','super_admin'].includes(value);for(const id of ['ga-create-portal','ga-create-mess']){$(id).disabled=busy||!!pending||high;if(high)$(id).checked=true;}$('ga-create-office').required=value!=='administrator';$('ga-create-role-help').textContent={pembaca:'Pembaca dapat melihat data pada web dan office yang diizinkan.',admin:'Admin dapat mencatat data sesuai akses dan office akun.',super_admin:'Super Admin mengelola master dan hak akses. Office tetap diperlukan untuk dokumen.',administrator:'Administrator mengelola seluruh akses dan office.'}[value]||'';}
+ function lock(){for(const el of form.elements)if(!['ga-create-save','ga-create-cancel'].includes(el.id))el.disabled=busy||!!pending;$('ga-create-close').disabled=busy;$('ga-create-cancel').disabled=busy;$('ga-create-save').disabled=busy;form.setAttribute('aria-busy',String(busy));$('ga-create-save').textContent=busy?'Memproses…':pending?'Periksa dan lanjutkan':'Buat akun';role();}
+ function clear(){pending=null;form.reset();$('ga-create-password').value='';$('ga-create-confirm').value='';$('ga-create-password').type=$('ga-create-confirm').type='password';message('');g.FormGuard?.clean(form);}
+ async function open(){
+  if(opening||busy||!A.administrator())return;if(dialog.open){$('ga-create-name').focus();return;}
+  if(g.FormGuard?.leave($('ga-access-editor'))===false)return;opening=true;const seq=++sequence;identity=key();
+  try{if(!pending)clear();const offices=await g.OfficeStore.list();if(seq!==sequence||identity!==key()||!A.administrator())return;
+   const selected=pending?.body.officeId||A.profile.office_id||'';$('ga-create-office').innerHTML='<option value="">Pilih office</option>'+offices.filter(o=>o.aktif).map(o=>`<option value="${g.PortalUI.escape(o.id)}">${g.PortalUI.escape(o.nama)}</option>`).join('');$('ga-create-office').value=selected;lock();dialog.showModal();g.FormGuard?.clean(form);(pending?$('ga-create-save'):$('ga-create-name')).focus();
+  }catch(error){g.PortalUI.showToast(error.message||'Form akun belum dapat dibuka.');}finally{opening=false;}
+ }
+ function validate(data){
+  if(!data.nama||data.nama.length>150)throw new Error('Isi nama akun, maksimal 150 karakter.');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)||data.email.length>254)throw new Error('Isi email yang valid.');
+  g.ProfilStore.validatePassword(data.password,$('ga-create-confirm').value);
+  if(!['pembaca','admin','super_admin','administrator'].includes(data.peran))throw new Error('Pilih peran yang tersedia.');
+  if(data.peran!=='administrator'&&!g.OfficeStore.records.some(o=>o.id===data.officeId&&o.aktif))throw new Error('Pilih office yang aktif.');
+  if(!data.aksesPortal&&!data.aksesMess)throw new Error('Pilih minimal satu akses web.');
+ }
+ async function submit(event){
+  event.preventDefault();if(busy||!A.administrator()||identity!==key())return;
+  if(!pending){if(!form.reportValidity())return;try{const body={nama:$('ga-create-name').value.trim(),email:$('ga-create-email').value.trim().toLowerCase(),password:$('ga-create-password').value,peran:$('ga-create-role').value,officeId:$('ga-create-office').value||null,aktif:$('ga-create-active').checked,aksesPortal:$('ga-create-portal').checked,aksesMess:$('ga-create-mess').checked};validate(body);pending={body:{...body,kunci:g.crypto.randomUUID()}};}catch(error){message(error.message,'error');return;}}
+  const seq=sequence,request=pending;busy=true;lock();message('Membuat akun…');
+  try{const client=await A.requireClient();if(seq!==sequence||identity!==key())return;const {data,error}=await client.functions.invoke('buat-akun31',{body:request.body});if(seq!==sequence||identity!==key()||!A.administrator())return;
+   if(error){let response;try{response=await error.context.json();}catch{}const failure=new Error(response?.error||'Hasil pembuatan akun belum dapat dipastikan. Klik Periksa dan lanjutkan.');failure.retry=response?.retry!==false;throw failure;}
+   if(!data?.berhasil||data.profil?.email!==request.body.email||!data.profil?.id){const failure=new Error('Server belum mengonfirmasi akun. Klik Periksa dan lanjutkan.');failure.retry=true;throw failure;}
+   const person=data.profil;busy=false;clear();lock();dialog.close();document.dispatchEvent(new CustomEvent('akun:dibuat',{detail:{id:person.id,email:person.email}}));g.PortalUI.showToast('Akun '+person.nama+' berhasil dibuat.');
+  }catch(error){if(seq!==sequence||identity!==key())return;if(error.retry===false)pending=null;message(error.message||'Akun belum dapat dibuat.','error');if(pending)g.FormGuard?.clean(form);}
+  finally{if(seq===sequence){busy=false;lock();}}
+ }
+ button.addEventListener('click',open);form.addEventListener('submit',submit);$('ga-create-role').addEventListener('change',role);$('ga-create-show').addEventListener('change',event=>{$('ga-create-password').type=$('ga-create-confirm').type=event.target.checked?'text':'password';});
+ for(const id of ['ga-create-close','ga-create-cancel'])$(id).addEventListener('click',()=>{if(!busy)dialog.close();});
+ dialog.addEventListener('cancel',event=>{if(busy){event.preventDefault();event.stopImmediatePropagation();}},true);dialog.addEventListener('close',()=>{if(!pending)clear();if(button.isConnected&&!button.hidden)button.focus();});
+ document.addEventListener('akses:berubah',()=>{button.hidden=!A.administrator();if(identity&&identity!==key()){sequence++;busy=false;opening=false;clear();identity='';g.FormGuard?.clean(form);if(dialog.open)dialog.close();lock();}},true);
+ g.AkunBaruUI=Object.freeze({open});button.hidden=!A.administrator();
+})(window);

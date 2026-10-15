@@ -36,7 +36,7 @@
         </section>
       </div>
       <div id="ga-panel-users" class="ga-profile-body" role="tabpanel" aria-labelledby="ga-tab-users" hidden>
-        <div class="ga-users-layout"><div class="ga-users-directory">
+        <div class="ga-users-heading"><h2>Daftar akun</h2><button type="button" id="ga-create-user" class="ga-profile-button primary" hidden>Buat akun</button></div><div class="ga-users-layout"><div class="ga-users-directory">
         <form id="ga-users-search-form" class="ga-profile-search"><label class="sr-only" for="ga-users-query" hidden>Cari nama atau email akun</label><input id="ga-users-query" type="search" maxlength="150" placeholder="Cari nama atau email akun…" aria-label="Cari nama atau email akun"><button type="submit" class="ga-profile-button">Cari</button></form>
         <ul id="ga-users-list" class="ga-users" aria-label="Daftar akun"></ul><p id="ga-users-message" class="ga-profile-message" role="status" hidden></p><div class="ga-profile-actions"><button type="button" class="ga-profile-button" id="ga-users-more" hidden>Muat berikutnya</button><button type="button" class="ga-profile-button" id="ga-users-refresh">Muat ulang</button></div>
         </div>
@@ -96,7 +96,7 @@
     $('ga-tab-download').hidden = !A.canWrite();
     $('ga-tab-offices').hidden=!isPortal||!A.administrator();
     if(!A.administrator()&&currentTab==='offices')selectTab('profile',true);
-    $('ga-admin-account-tools').hidden = !A.administrator();
+    $('ga-admin-account-tools').hidden = !A.administrator();$('ga-create-user').hidden=!A.administrator();
     if(!A.administrator()){$('ga-admin-password-form').reset();$('ga-rename-form').reset();}
     if(!A.canWrite()&&currentTab==='download')selectTab('profile',true);
     [...$('ga-access-role').options].forEach(o=>{o.disabled=!A.administrator()&&['administrator','super_admin'].includes(o.value);o.hidden=o.disabled;});
@@ -281,6 +281,7 @@
     try{await S.resetAccountPassword(editing,$('ga-admin-password').value,$('ga-admin-confirm').value);form.reset();window.FormGuard?.clean(form);message('ga-admin-password-message','Kata sandi akun berhasil diganti. Sampaikan kepada pemilik akun melalui jalur yang aman.','success');}
     catch(error){message('ga-admin-password-message',errorMessage(error),'error');}finally{accessBusy=false;b.disabled=false;}
   });
+  document.addEventListener('akun:dibuat',event=>{if(A.administrator()){$('ga-users-query').value=event.detail.email;loadUsers(true);}});
   document.addEventListener('akses:berubah', account);
   document.addEventListener('visibilitychange', () => { if (!document.hidden && A.profile && !photoBusy && !passwordBusy && !accessBusy) A.refreshProfile().catch(() => {}); });
   A.ready.then(() => { account(); routeProfile(); });

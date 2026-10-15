@@ -3,20 +3,21 @@
  const A=g.Akses,S=g.TrackingInputStore,D=g.TrackingInputDomain,$=id=>document.getElementById(id),form=$('document-form'),dialog=$('document-dialog');
  const ids=['doc-initial-position','doc-initial-date','doc-initial-status'];let busy=false,waiting=false,editing=false,identity='',locks=null,sequence=0;
  const key=()=>{const p=A.profile;return p?[p.id,p.peran,p.office_id,p.aktif,p.akses_portal].join('|'):'';};
- const hasInitial=()=>!editing&&ids.some(id=>$(id).value.trim());
+ const hasInitial=()=>!editing&&$('doc-initial-enabled').checked;
  function sync(){
   const locked=busy||waiting;
   if(locked&&!locks)locks=[...form.elements,...dialog.querySelectorAll('[data-close]')].map(el=>({el,disabled:el.disabled}));
   if(locked)locks.forEach(({el})=>{el.disabled=true;});
   else if(locks){locks.forEach(({el,disabled})=>{el.disabled=disabled;});locks=null;}
   dialog.querySelectorAll('[data-close]').forEach(button=>{button.disabled=busy;});
-  ids.forEach(id=>{$(id).disabled=editing||locked;$(id).required=hasInitial();});
-  $('doc-initial-fields').hidden=editing;$('doc-initial-recovery').hidden=!waiting;
+  ids.forEach(id=>{$(id).disabled=editing||locked||!hasInitial();$(id).required=hasInitial();});
+  $('doc-initial-section').hidden=editing;$('doc-initial-enabled').disabled=editing||locked;$('doc-initial-enabled').setAttribute('aria-expanded',String(hasInitial()));$('doc-initial-fields').hidden=!hasInitial();$('doc-initial-recovery').hidden=!waiting;
   $('doc-initial-check').disabled=busy;$('doc-initial-retry').disabled=busy;$('doc-initial-retry').hidden=!S.pending?.canRetry;
   $('doc-initial-date').min=$('doc-date').value;$('doc-initial-date').max=g.TrackingDomain.today();
  }
  function configure(isEditing){sequence++;identity=key();editing=isEditing;busy=false;waiting=false;sync();}
  async function save(data){
+  if(!hasInitial())throw new Error('Centang Dokumen sudah berjalan untuk mengisi kondisi awal.');
   if(identity!==key()||!A.canWrite())throw new Error('Akun berubah. Buka kembali input dokumen.');
   const row={namaDokumen:data.namaDokumen,tanggalMasuk:data.tanggalMasuk,bu:data.bu,jenis:data.jenisDokumen==='Lainnya'?data.jenisDokumenLainnya:data.jenisDokumen,nomorDokumen:data.nomorDokumen,officeId:A.administrator()?data.officeId:A.profile.office_id,noteDokumen:data.noteDokumen,posisiAwal:data.posisiAwal,tanggalPosisiAwal:data.tanggalPosisiAwal,statusAwal:data.statusAwal};
   const result=D.validate([row],{today:g.TrackingDomain.today(),officeId:A.profile.office_id,administrator:A.administrator(),offices:g.OfficeStore.records});
@@ -35,6 +36,8 @@
   }catch(error){if(seq===sequence){waiting=!!S.pending;g.PortalUI.formError('document-error',error.message);}}
   finally{if(seq===sequence){busy=false;sync();}}
  }
+ $('doc-initial-enabled').addEventListener('change',()=>{if(!hasInitial()&&ids.some(id=>$(id).value.trim())){if(!g.confirm('Sembunyikan dan hapus isian kondisi awal? Data dokumen lainnya tetap ada.')){$('doc-initial-enabled').checked=true;sync();return;}ids.forEach(id=>{$(id).value='';});}sync();});
+ form.addEventListener('reset',()=>queueMicrotask(sync));
  ids.forEach(id=>{$(id).addEventListener('input',sync);$(id).addEventListener('change',sync);});$('doc-date').addEventListener('change',sync);
  $('doc-initial-check').addEventListener('click',()=>recover(false));$('doc-initial-retry').addEventListener('click',()=>recover(true));
  dialog.addEventListener('cancel',event=>{if(busy){event.preventDefault();event.stopImmediatePropagation();}},true);

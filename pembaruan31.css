@@ -1,0 +1,49 @@
+/* Focused spreadsheet workspace and optional initial-condition fields. */
+.ti-initial-section{border-top:1px solid var(--line);padding-top:16px}
+.ti-initial-toggle{display:flex;align-items:flex-start;gap:10px;font-size:13px;font-weight:550;cursor:pointer;color:var(--text)}
+.ti-initial-toggle input{width:16px!important;min-width:16px;height:16px!important;min-height:16px!important;margin:2px 0 0;padding:0;accent-color:var(--accent)}
+.ti-initial-toggle small{display:block;font-size:12px;font-weight:400;color:var(--muted);margin-top:3px}
+.ti-initial-toggle-compact{white-space:nowrap;font-size:12px}.ti-toolbar-left{flex-wrap:wrap;gap:12px}
+.ti-initial-section .ti-initial-fields{border:0;margin:14px 0 0;padding:14px;background:var(--bg);border-radius:6px}
+.ti-initial-fields>p{display:none}.ti-dialog:not(.ti-show-initial) .ti-table{width:1514px}
+.ti-dialog{width:calc(100vw - 24px);max-width:none;height:calc(100dvh - 24px);max-height:calc(100dvh - 24px)}
+.ti-dialog .ti-heading{padding:18px 22px 16px}.ti-dialog .ti-heading h2{font-size:21px}.ti-dialog #tracking-excel-form{flex:1;overflow:hidden}.ti-dialog .ti-frame{max-height:none;min-height:0}.ti-dialog .ti-toolbar{padding:12px 22px}
+.ts-heading{padding:12px 16px;gap:10px}.ts-view-controls{display:flex;gap:8px;flex-wrap:wrap}.ts-view-controls .button{font-size:12px;min-height:34px}
+.ts-table{width:100%;min-width:1430px}.ts-table .ts-current,.ts-table .ts-origin{padding-block:11px!important}.ts-current small{margin-top:2px}
+:is(.ti-table,.ts-table){display:table}:is(.ti-table,.ts-table) thead{display:table-header-group}:is(.ti-table,.ts-table) tbody{display:table-row-group;padding:0;background:var(--surface)}:is(.ti-table,.ts-table) tr{display:table-row;border:0;padding:0}:is(.ti-table,.ts-table) :is(th,td){display:table-cell;position:static;inset:auto;margin:0}:is(.ti-table,.ts-table) td:before{content:none!important}
+body.tracking-excel-full{overflow:hidden}
+body.tracking-excel-full :is(.sidebar,#nav-scrim){display:none!important}
+body.tracking-excel-full .workspace{margin-left:0;min-height:0;height:100dvh;display:flex;flex-direction:column}
+body.tracking-excel-full .topbar{height:52px;min-height:52px;padding:0 20px;flex:0 0 auto}
+body.tracking-excel-full .topbar-left>.icon-button{display:none}
+body.tracking-excel-full #main-content{flex:1;min-height:0;overflow:hidden}
+body.tracking-excel-full #tracking-page{max-width:none;margin:0;padding:10px 14px 12px;height:100%;display:flex;flex-direction:column;gap:9px}
+body.tracking-excel-full #tracking-page>.page-heading{margin:0;gap:14px;flex:0 0 auto;align-items:center}
+body.tracking-excel-full #tracking-page>.page-heading :is(.page-kicker,.page-description){display:none}
+body.tracking-excel-full #tracking-title{font-size:20px;margin:0;line-height:1.3}
+body.tracking-excel-full :is(#document-stats,#tracking-list-caption){display:none!important}
+body.tracking-excel-full #tracking-page>.documents-panel{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:7px;box-shadow:none}
+body.tracking-excel-full .panel-tabs-row{min-height:42px;padding-inline:16px;flex:0 0 auto}
+body.tracking-excel-full .document-tab{min-height:42px;font-size:12px}
+body.tracking-excel-full #download-active-pdf{min-height:31px;font-size:11px;padding:5px 9px}
+body.tracking-excel-full #document-filters{padding:9px 16px;gap:8px;flex:0 0 auto;flex-wrap:nowrap;overflow-x:auto}
+body.tracking-excel-full #document-filters :is(input,select){font-size:12px;min-height:36px;height:36px;padding-block:6px}
+body.tracking-excel-full #document-filters .search-field{min-width:210px;flex:1}
+body.tracking-excel-full #document-filters .search-field>span{top:9px}
+body.tracking-excel-full #document-filters .filter-select{min-width:130px;width:140px}
+body.tracking-excel-full .ts-filters-closed #document-filters{display:none}
+body.tracking-excel-full #tracking-sheet-panel{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+body.tracking-excel-full #tracking-sheet-form{flex:1;min-height:0;display:flex;flex-direction:column}
+body.tracking-excel-full .ts-frame{flex:1;min-height:0;max-height:none}
+body.tracking-excel-full .ts-helper{padding:0 16px 8px;gap:12px;flex:0 0 auto}
+body.tracking-excel-full .ts-actions{padding:10px 16px;gap:10px;flex:0 0 auto;border-top:1px solid var(--line);flex-direction:row;align-items:center}
+body.tracking-excel-full .ts-actions .button{min-height:36px;font-size:12px;padding:7px 10px}
+body.tracking-excel-full .ts-bulk{padding:10px;margin:0 16px 10px;max-height:30dvh;overflow:auto;flex:0 0 auto}
+body.tracking-excel-full .ts-message,body.tracking-excel-full #ts-help{max-height:20dvh;overflow:auto;flex:0 0 auto;margin:0 16px 10px}
+.ga-users-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.ga-users-heading h2{font-size:17px;margin:0}
+.ga-create-dialog{width:620px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);overflow:auto;box-shadow:0 20px 70px #10182833}
+.ga-create-dialog::backdrop{background:#10182866}.ga-create-heading{display:flex;justify-content:space-between;align-items:flex-start;padding:22px 24px 18px;border-bottom:1px solid var(--line);gap:14px}
+.ga-create-heading h2{font-size:21px;margin:0 0 5px}.ga-create-heading p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}.ga-create-heading button{padding:4px 7px;background:transparent;font-size:24px;color:var(--muted)}
+.ga-create-body{padding:22px 24px;display:grid;gap:18px}.ga-create-body .ga-profile-grid{gap:16px}.ga-create-body input:not([type=checkbox]),.ga-create-body select{width:100%;min-height:42px;padding:9px 11px;border:1px solid var(--line-strong);border-radius:5px;background:var(--surface);color:var(--text);font-size:14px}.ga-create-body label{display:block;font-size:13px;margin-bottom:6px;font-weight:550}.ga-create-body .ga-access-check{display:flex;margin:0;font-weight:400;gap:9px}.ga-create-checks{display:flex;flex-wrap:wrap;gap:12px 22px}.ga-create-body .ga-profile-help{margin:6px 0 0}
+.ga-create-actions{display:flex;gap:9px;justify-content:flex-end;padding:15px 24px;border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0}.ga-create-actions button{min-height:40px}.ga-create-dialog [aria-busy=true] input:disabled,.ga-create-dialog [aria-busy=true] select:disabled{opacity:.7}
+@media(max-width:760px){body.tracking-excel-full .topbar{padding:0 12px;height:48px;min-height:48px}body.tracking-excel-full #tracking-page{padding:8px;gap:7px}body.tracking-excel-full #tracking-title{font-size:17px}body.tracking-excel-full #tracking-page>.page-heading{flex-wrap:wrap;gap:7px}body.tracking-excel-full #tracking-input-options{width:auto;margin-left:auto;gap:7px}body.tracking-excel-full #tracking-input-options .button{min-height:34px;font-size:11px;padding:6px 9px}body.tracking-excel-full .ti-mode-switch button{min-height:28px;font-size:11px;padding:5px 10px}body.tracking-excel-full .ts-actions{flex-wrap:wrap;gap:7px}body.tracking-excel-full .ts-actions small{display:none}body.tracking-excel-full .ts-helper>span{display:none}.ts-heading{padding:10px;align-items:center;flex-wrap:wrap}.ts-view-controls{gap:6px}.ts-heading .button{min-height:32px;font-size:11px;padding:6px 8px}.ti-dialog .ti-heading{padding:14px}.ti-dialog .ti-heading p:last-child{display:none}.ti-dialog .ti-toolbar{padding:10px 14px;flex-wrap:wrap}.ti-toolbar-left{flex-direction:row;align-items:center}.ti-office{display:none}.ga-create-heading,.ga-create-body{padding:18px}.ga-create-body .ga-profile-grid{grid-template-columns:1fr}.ga-create-actions{padding:13px 18px}.ga-create-body input:not([type=checkbox]),.ga-create-body select{font-size:16px}}
