@@ -1,24 +1,5 @@
-(function (g) {
-  'use strict';
-  const A = g.Akses;
-  async function rpc(name, args, write = false) {
-    try { return await A.rpc(name, args, write); }
-    catch (error) {
-      if (['PGRST202', 'PGRST205', '42P01', '42883'].includes(error.code)) {
-        throw Object.assign(new Error('Menu stok belum diaktifkan di database. Administrator perlu menjalankan SQL Stok & Opname.'), {setup: true});
-      }
-      throw error;
-    }
-  }
-  g.StokStore = Object.freeze({
-    page: (tab, query, page, kind) => rpc('stok_halaman', {p_tab: tab, p_cari: query, p_halaman: page, p_jenis: kind}),
-    items: () => A.all('stok_item', '*', {aktif: true}, 'nama'),
-    saveItem: (data, item) => rpc('stok_simpan_item', {p_data: data, ...(item ? {p_id: item.id, p_versi: item.versi} : {})}, true),
-    transaction: (id, data, rows) => rpc('stok_catat_transaksi', {p_id: id, p_data: data, p_baris: rows}, true),
-    start: (id, crew, note) => rpc('stok_mulai_opname', {p_id: id, p_crew: crew, p_catatan: note}, true),
-    detail: id => rpc('stok_detail_opname', {p_id: id}),
-    saveCount: (opname, rows, finish) => rpc('stok_simpan_opname', {p_id: opname.id, p_versi: opname.versi, p_baris: rows, p_selesai: finish}, true),
-    review: (opname, action, reason) => rpc('stok_periksa_opname', {p_id: opname.id, p_versi: opname.versi, p_tindakan: action, p_alasan: reason}, true),
-    backup: () => rpc('stok_ekspor')
-  });
+(function(g){'use strict';const A=g.Akses;
+ async function rpc(name,args){try{return await A.rpc(name,args,false);}catch(err){if(['PGRST202','PGRST205','42P01','42883'].includes(err.code)){err.setup=true;err.message='Modul stok tim belum terpasang. Jalankan pembaruan33.sql di SQL Editor Supabase, lalu muat ulang halaman.';}throw err;}}
+ const writes=g.Kiriman33.create('stok',{valid:(v,p)=>v.office_id===p.office&&v.jenis===p.kind&&v.hasil&&typeof v.hasil==='object',call:(action,p)=>rpc(action==='check'?'stok33_status':'stok33_tulis',{p_office:p.office,p_jenis:p.kind,p_kunci:p.key,p_pemilik:p.owner,...(action==='check'?{}:{p_data:p.payload})})});
+ g.StokStore=Object.freeze({context:office=>rpc('stok33_konteks',{p_office:office||null}),page:(office,tab,filter,page)=>rpc('stok33_halaman',{p_office:office,p_tab:tab,p_filter:filter,p_halaman:page}),detail:(office,kind,id=null)=>rpc('stok33_detail',{p_office:office,p_jenis:kind,p_id:id}),save:writes.save,retry:writes.retry,check:writes.check,get pending(){return writes.pending;},get busy(){return writes.busy;},backup:office=>rpc('stok33_ekspor',{p_office:office===undefined?(A.administrator()?null:A.profile?.office_id||null):office})});
 })(window);

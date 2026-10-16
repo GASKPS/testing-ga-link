@@ -2,6 +2,9 @@
 -- Menambah tabel baru. Tidak mengubah data mess, dokumen, perangkat, atau akun.
 begin;
 do $$ begin
+ if to_regprocedure('public.stok33_tulis(uuid,text,uuid,uuid,jsonb)') is not null then
+  raise exception 'Stok tim Pembaruan 33 sudah terpasang. Gunakan 03_Supabase/pembaruan33.sql; jangan jalankan ulang stok_setup.sql lama.';
+ end if;
  if to_regclass('public.profil_pengguna') is null or to_regprocedure('internal.administrator()') is null then
   raise exception 'Pasang database Portal GA dan pembaruan Administrator terlebih dahulu.';
  end if;

@@ -2,7 +2,7 @@
  'use strict';
  const A=g.Akses,S=g.OfficeStore,$=id=>document.getElementById(id);
  const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- let request=0,busy=false;
+ let request=0,busy=false,editing=null;
  function option(o){return '<option value="'+e(o.id)+'">'+e(o.nama)+(o.aktif?'':' (Nonaktif)')+'</option>';}
  function fill(select,selected,all=false){
   const rows=S.records.filter(o=>all||o.aktif||o.id===selected);
@@ -37,22 +37,19 @@
   if($('ga-profile-office'))$('ga-profile-office').textContent=A.administrator()?'Akses dokumen: semua office':'Office: '+(S.name(A.profile.office_id)||'Belum ditetapkan');
  }
  function drawManager(){
-  $('ga-office-list').innerHTML=S.records.map(o=>'<li class="ga-user-row"><div><strong>'+e(o.nama)+'</strong><span class="ga-user-status'+(o.aktif?'':' inactive')+'">'+(o.aktif?'Aktif':'Nonaktif')+'</span></div><button class="ga-profile-button" type="button" data-toggle-office="'+e(o.id)+'">'+(o.aktif?'Nonaktifkan':'Aktifkan')+'</button></li>').join('');
+  $('ga-office-list').innerHTML=S.records.map(o=>'<tr><td><strong>'+e(o.nama)+'</strong></td><td><span class="ga-user-status'+(o.aktif?'':' inactive')+'">'+(o.aktif?'Aktif':'Nonaktif')+'</span></td><td><button class="ga-profile-button" type="button" data-edit-office="'+e(o.id)+'">Edit office</button></td></tr>').join('');
+
  }
  async function loadManager(){if(!A.administrator())return;await S.list();drawManager();}
  $('ga-office-form').addEventListener('submit',async event=>{
-  event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type=submit]'),msg=$('ga-office-message');
+  event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type=submit]'),msg=$('ga-office-form-message');
   if(busy||!A.administrator()||!form.reportValidity())return;busy=true;button.disabled=true;msg.hidden=false;
-  try{await S.create($('ga-office-name').value,$('ga-office-active').checked);form.reset();g.FormGuard?.clean(form);await loadManager();await trackingOffice();msg.textContent='Office ditambahkan. Tetapkan office akun melalui tab Hak Akses.';}
+  try{if(editing)await S.update(editing,$('ga-office-name').value,$('ga-office-active').checked);else await S.create($('ga-office-name').value,$('ga-office-active').checked);form.reset();g.FormGuard?.clean(form);$('ga-office-dialog').close();await loadManager();await trackingOffice();$('ga-office-message').hidden=false;$('ga-office-message').textContent='Data office tersimpan.';editing=null;}
   catch(error){msg.textContent=error.message;}finally{busy=false;button.disabled=false;}
  });
- $('ga-office-list').addEventListener('click',async event=>{
-  const button=event.target.closest('[data-toggle-office]');if(!button||busy||!A.administrator())return;
-  const office=S.records.find(o=>o.id===button.dataset.toggleOffice);if(!office)return;
-  busy=true;button.disabled=true;const msg=$('ga-office-message');msg.hidden=false;
-  try{await S.setActive(office,!office.aktif);await loadManager();await trackingOffice();msg.textContent=office.nama+' '+(office.aktif?'dinonaktifkan. Dokumen lama tetap dapat dilihat dan dikelola.':'diaktifkan.');}
-  catch(error){msg.textContent=error.message;}finally{busy=false;button.disabled=false;}
- });
+ function openOffice(office=null){if(busy||!A.administrator())return;editing=office;$('ga-office-form').reset();$('ga-office-name').value=office?.nama||'';$('ga-office-active').checked=office?office.aktif:true;$('ga-office-title').textContent=office?'Edit office':'Tambah office';$('ga-office-form-message').hidden=true;$('ga-office-dialog').showModal();g.FormGuard?.clean($('ga-office-form'));$('ga-office-name').focus();}
+ $('ga-office-new').addEventListener('click',()=>openOffice());$('ga-office-close').addEventListener('click',()=>{if(!busy)$('ga-office-dialog').close();});$('ga-office-dialog').addEventListener('cancel',event=>{if(busy)event.preventDefault();});
+ $('ga-office-list').addEventListener('click',event=>{const b=event.target.closest('[data-edit-office]');if(b)openOffice(S.records.find(o=>o.id===b.dataset.editOffice));});
  g.OfficeUI=Object.freeze({documentOffice,accountOffice,loadManager,name:id=>S.name(id)});
  document.addEventListener('akses:berubah',()=>trackingOffice().catch(err=>g.PortalUI.showToast(err.message)));
  document.addEventListener('data:muat-ulang',()=>trackingOffice().catch(err=>g.PortalUI.showToast(err.message)));

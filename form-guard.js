@@ -3,7 +3,7 @@
 'use strict';
 const baselines=new WeakMap(),forced=new WeakSet(),watched=new WeakSet();
 const supported=f=>f instanceof HTMLFormElement&&!/search|filter|login/.test(f.id)&&!f.hasAttribute('data-no-guard');
-function value(f){return JSON.stringify([...f.elements].filter(x=>!['submit','button','reset'].includes(x.type)&&!['ga-password-show'].includes(x.id)).map(x=>[x.name||x.id,x.type==='file'?[...x.files].map(f=>[f.name,f.size,f.lastModified]):['checkbox','radio'].includes(x.type)?x.checked:x.value]));}
+function value(f){return JSON.stringify([...f.elements].filter(x=>!['submit','button','reset'].includes(x.type)&&!['ga-password-show'].includes(x.id)&&!x.hasAttribute('data-guard-ignore')).map(x=>[x.name||x.id,x.type==='file'?[...x.files].map(f=>[f.name,f.size,f.lastModified]):['checkbox','radio'].includes(x.type)?x.checked:x.value]));}
 function clean(f){if(supported(f)){baselines.set(f,value(f));forced.delete(f);}}
 function forms(root=document){return root instanceof HTMLFormElement?[root]:[...root.querySelectorAll('form')];}
 function dirty(f){return supported(f)&&(forced.has(f)||(baselines.has(f)&&baselines.get(f)!==value(f)));}
