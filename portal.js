@@ -40,7 +40,7 @@
   };
   const typeText = D.typeText;
   const filters = () => ({query: $('search').value.trim(), bu: $('filter-bu').value, status: $('filter-status').value,office:window.Akses.administrator()?$('filter-office').value:(window.Akses.profile?.office_id||''),officeNama:$('filter-office').selectedOptions[0]?.textContent||'',dateFrom:$('filter-from').value,dateTo:$('filter-to').value});
-  const statusClass = value => ({'Menunggu Approval':'approval','Sedang Diproses':'process','Perlu Revisi':'revision','Siap Diambil':'ready','Sudah Diambil':'done','Selesai':'done','Dibatalkan':'cancel'}[value] || '');
+  const statusClass = value => ({'Menunggu Approval':'approval','Sedang Diproses':'process','Perlu Revisi':'revision','Siap Diambil':'ready','Sudah Diambil':'','Selesai':'done','Dibatalkan':'cancel'}[value] || '');
   const status = value => `<span class="status-badge status-${statusClass(value)}">${e(value)}</span>`;
   function showToast(message) {
     clearTimeout(toastTimer); $('toast').textContent = message; $('toast').hidden = false;
@@ -80,13 +80,17 @@
     const label=window.Akses.canWrite()?'Tamu & Catatan':'Data Tamu',link=document.querySelector('[data-agenda-label]');if(link)link.textContent=label;
     if(location.hash==='#agenda'){$('page-label').textContent=label;document.title=label+' · GA Services';}
   }
-  window.Akses.ready.then(syncAgendaLabel);
+  window.Akses.ready.then(()=>{syncAgendaLabel();route();});
+  document.addEventListener('akses:berubah',route);
   function route() {
     const pages = { tracking: ['tracking-page', 'Tracking Dokumen'], 'link-kerja': ['links-page', 'Link Kerja'], karyawan: ['employees-page', 'Data Karyawan'], 'ht-hp': ['devices-page', 'Data Perangkat'], mess: ['mess-admin-page','Update Data Mess'], profil: ['profile-page', 'Profil & Pengaturan'], agenda: ['agenda-page','Tamu & Catatan'], cuti: ['cuti-page','Tahunan & Extra'] };
     pages.stok = ['stok-page', 'Stok Barang & Opname'];
     pages.agenda[1]=window.Akses.canWrite()?'Tamu & Catatan':'Data Tamu';
     const requested = window.location.hash.slice(1);
-    const routeName = Object.hasOwn(pages, requested) ? requested : 'link-kerja';
+    const crew=window.Akses.profile?.peran==='crew';if(crew&&!['stok','profil'].includes(requested))history.replaceState(null,'',location.pathname+location.search+'#stok');
+    const routeName = crew&&!['stok','profil'].includes(requested)?'stok':Object.hasOwn(pages, requested) ? requested : 'link-kerja';
+    document.body.classList.toggle('crew-account',crew);
+    document.querySelectorAll('[data-route]').forEach(a=>{a.hidden=crew&&!['stok','profil'].includes(a.dataset.route);});
     Object.entries(pages).forEach(([name, page]) => { $(page[0]).hidden = name !== routeName; });
     $('page-label').textContent = pages[routeName][1];
     document.title = `${$('page-label').textContent} · GA Services`;

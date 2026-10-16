@@ -8,7 +8,7 @@
   let logRequest=0,logActor=null;
   function time(v){return v?new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jayapura',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(v))+' WIT':'Belum ada pembaruan';}
   async function metadata(){
-    await A.ready;if(!A.profile)return;
+    await A.ready;if(!A.profile||A.profile.peran==='crew')return;
     renderMetadata(await A.one('pengaturan_mess',1));
   }
   function renderMetadata(value){

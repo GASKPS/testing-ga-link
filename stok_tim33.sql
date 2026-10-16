@@ -93,7 +93,8 @@ declare v_p public.profil_pengguna; begin
  if v_p.peran::text='administrator' then return 'admin'; end if;
  if v_p.office_id is distinct from p_office or p_office is null then return ''; end if;
  if v_p.peran::text in ('super_admin','admin') then return 'admin'; end if;
- if exists(select 1 from public.stok_anggota33 a where a.user_id=v_p.id and a.office_id=p_office and a.aktif) then return 'crew'; end if;
+ if v_p.peran::text='crew' then return 'crew';end if;
+
  return 'pembaca';
 end $$;
 create or replace function internal.stok33_global() returns boolean language sql stable security definer set search_path='' as $$
@@ -134,7 +135,7 @@ declare v_office uuid;v_role text;v_offices jsonb;begin
  v_role:=internal.stok33_role(v_office);
  if v_office is null then raise exception 'Office akun belum ditetapkan atau akses Portal GA tidak aktif.';end if;
  return jsonb_build_object('office_id',v_office,'offices',v_offices,'peran',v_role,'administrator',internal.stok33_global(),
- 'crew',case when v_role='admin' then coalesce((select jsonb_agg(jsonb_build_object('id',p.id,'nama',p.nama,'email',p.email,'crew',a.aktif,'peran',p.peran) order by p.nama)
+ 'crew',case when v_role='admin' then coalesce((select jsonb_agg(jsonb_build_object('id',p.id,'nama',p.nama,'email',p.email,'crew',(a.aktif or p.peran::text='crew'),'peran',p.peran) order by p.nama)
   from public.profil_pengguna p left join public.stok_anggota33 a on a.user_id=p.id and a.office_id=v_office
   where p.aktif and p.akses_portal and p.office_id=v_office),'[]') else '[]'::jsonb end,
  'lama',jsonb_build_object('barang',(select count(*) from public.stok_item i where i.office_id is null),'opname',(select count(*) from public.stok_opname o where o.office_id is null),'transaksi',(select count(*) from public.stok_transaksi t where t.office_id is null),'draf',(select count(*) from public.stok_opname o where o.office_id is null and o.status='draf')),
@@ -212,6 +213,7 @@ begin
  if p_pemilik is distinct from auth.uid() or p_kunci is null or jsonb_typeof(p_data) is distinct from 'object' then raise exception 'Sesi penyimpanan tidak valid.';end if;
  if p_jenis='migrasi' then perform pg_advisory_xact_lock(330001);else perform pg_advisory_xact_lock_shared(330001);end if;
  perform pg_advisory_xact_lock(hashtextextended('stok33:'||coalesce(p_office::text,''),0));
+ perform 1 from public.profil_pengguna p where p.id=auth.uid() for share;
  v_role:=internal.stok33_role(p_office);if v_role='' then raise exception 'Akses office tidak diizinkan.';end if;
  perform pg_advisory_xact_lock(hashtextextended(p_pemilik::text||p_kunci::text,33));
  select r.* into v_saved from internal.stok_requests33 r where r.user_id=p_pemilik and r.kunci=p_kunci;
@@ -238,7 +240,7 @@ begin
  elsif p_jenis='migrasi' then
   if exists(select 1 from public.stok_item i where i.office_id=p_office) then raise exception 'Pilih office yang belum mempunyai barang, agar data stok lama tidak tercampur.';end if;
   if exists(select 1 from public.stok_opname o where o.office_id is null and o.status='draf') then
-   select p.* into v_crew from public.profil_pengguna p where p.id=(p_data->>'crew_id')::uuid and p.office_id=p_office and p.aktif and p.akses_portal and (p.peran::text in ('administrator','super_admin','admin') or exists(select 1 from public.stok_anggota33 a where a.user_id=p.id and a.office_id=p_office and a.aktif));
+   select p.* into v_crew from public.profil_pengguna p where p.id=(p_data->>'crew_id')::uuid and p.office_id=p_office and p.aktif and p.akses_portal and (p.peran::text in ('administrator','super_admin','admin','crew') or exists(select 1 from public.stok_anggota33 a where a.user_id=p.id and a.office_id=p_office and a.aktif));
    if not found then raise exception 'Pilih crew atau admin office ini untuk melanjutkan opname lama.';end if;
   end if;
   update public.stok_item set office_id=p_office where office_id is null;
@@ -297,7 +299,7 @@ begin
   if v_t.jenis='keluar' then perform internal.stok33_buka_perbandingan(p_office,v_t.tanggal);end if;
   v_result:=jsonb_build_object('id',v_tx);perform internal.stok33_audit(p_office,'transaksi',v_id,'Transaksi dibatalkan',jsonb_build_object('alasan',v_reason,'transaksi_koreksi',v_tx));
  elsif p_jenis in ('mulai_keluar','mulai_opname') then
-  select p.* into v_crew from public.profil_pengguna p where p.id=(p_data->>'crew_id')::uuid and p.office_id=p_office and p.aktif and p.akses_portal and (p.peran::text in ('administrator','super_admin','admin') or exists(select 1 from public.stok_anggota33 a where a.user_id=p.id and a.office_id=p_office and a.aktif));
+  select p.* into v_crew from public.profil_pengguna p where p.id=(p_data->>'crew_id')::uuid and p.office_id=p_office and p.aktif and p.akses_portal and (p.peran::text in ('administrator','super_admin','admin','crew') or exists(select 1 from public.stok_anggota33 a where a.user_id=p.id and a.office_id=p_office and a.aktif));
   if not found then raise exception 'Pilih crew aktif yang memiliki izin menghitung di office ini.';end if;
   v_reason:=internal.stok33_teks(p_data,'catatan',2000);v_id:=gen_random_uuid();
   if p_jenis='mulai_keluar' then
@@ -346,7 +348,7 @@ begin
   v_action:=p_data->>'tindakan';v_reason:=internal.stok33_teks(p_data,'alasan',2000,v_action<>'setujui');
   if v_action is null or v_action not in ('setujui','sesuaikan','tutup','ulang','batal','alihkan') then raise exception 'Tindakan pemeriksaan tidak valid.';end if;
   if v_action='alihkan' then
-   select p.* into v_crew from public.profil_pengguna p where p.id=(p_data->>'crew_id')::uuid and p.office_id=p_office and p.aktif and p.akses_portal and (p.peran::text in ('administrator','super_admin','admin') or exists(select 1 from public.stok_anggota33 a where a.user_id=p.id and a.office_id=p_office and a.aktif));
+   select p.* into v_crew from public.profil_pengguna p where p.id=(p_data->>'crew_id')::uuid and p.office_id=p_office and p.aktif and p.akses_portal and (p.peran::text in ('administrator','super_admin','admin','crew') or exists(select 1 from public.stok_anggota33 a where a.user_id=p.id and a.office_id=p_office and a.aktif));
    if not found then raise exception 'Pilih crew yang aktif dan berizin.';end if;
   end if;
   if p_jenis='periksa_keluar' then

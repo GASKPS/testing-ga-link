@@ -36,5 +36,8 @@
       else { el.tabIndex = -1; el.focus({ preventScroll: true }); }
     };
   }
-  g.Paginasi = Object.freeze({ range, numbers, summary, render });
+  function tables(root,size=20){
+    root.querySelectorAll('table').forEach(table=>{const rows=[...table.querySelectorAll('tbody > tr')];if(rows.length<=size||table.dataset.paged34)return;table.dataset.paged34='true';const footer=document.createElement('div');footer.className='pagination';table.closest('.s33-table-scroll')?.after(footer);const show=page=>{const state=range(rows.length,page,size);rows.forEach((row,i)=>row.hidden=i<state.start||i>=state.end);render(footer,state,show);};show(1);});
+  }
+  g.Paginasi = Object.freeze({ range, numbers, summary, render, tables });
 })(window);

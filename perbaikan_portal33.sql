@@ -3,8 +3,9 @@ begin;
 create or replace function internal.pengguna_portal32(p_tulis boolean default false) returns public.profil_pengguna
 language plpgsql security definer set search_path='' as $$
 declare v_p public.profil_pengguna;begin
- select p.* into v_p from public.profil_pengguna p where p.id=auth.uid() for share;
- if not found or not v_p.aktif or not v_p.akses_portal or (p_tulis and v_p.peran::text not in ('administrator','super_admin','admin')) then raise exception 'Akses Portal GA tidak diizinkan.';end if;return v_p;
+ if p_tulis then select p.* into v_p from public.profil_pengguna p where p.id=auth.uid() for share;
+ else select p.* into v_p from public.profil_pengguna p where p.id=auth.uid();end if;
+ if not found or not v_p.aktif or not v_p.akses_portal or v_p.peran::text='crew' or (p_tulis and v_p.peran::text not in ('administrator','super_admin','admin')) then raise exception 'Akses Portal GA tidak diizinkan.';end if;return v_p;
 end $$;
 revoke all on function internal.pengguna_portal32(boolean) from public,anon,authenticated;
 create table if not exists internal.skc_input_requests32 (

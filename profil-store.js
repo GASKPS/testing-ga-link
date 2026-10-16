@@ -1,7 +1,7 @@
 (function (g) {
   'use strict';
   const A = g.Akses, bucket = 'foto_profil';
-  const roles = Object.freeze({ administrator: 'Administrator', super_admin: 'Super Admin', admin: 'Admin', pembaca: 'Pembaca' });
+  const roles = Object.freeze({ administrator: 'Administrator', super_admin: 'Super Admin', admin: 'Admin', pembaca: 'Pembaca', crew: 'Crew' });
   function validatePassword(password, confirm) {
     if (password !== confirm) throw new Error('Konfirmasi password belum sama.');
     if (password.length < 8) throw new Error('Gunakan password minimal 8 karakter.');
@@ -73,9 +73,7 @@
   }
   async function setAccess(person, values) {
     if (!A.superAdmin()) throw new Error('Hanya Super Admin yang boleh mengatur hak akses.');
-    const args={p_id:person.id,p_versi:person.versi,p_peran:values.peran,p_aktif:values.aktif,p_akses_portal:values.aksesPortal,p_akses_mess:values.aksesMess};
-    if(A.administrator()){args.p_office_id=values.officeId||null;return A.rpc('atur_hak_akses_office',args);}
-    return A.rpc('atur_hak_akses',args);
+    return A.rpc('atur_akun34',{p_id:person.id,p_versi:person.versi,p_peran:values.peran,p_aktif:values.aktif,p_akses_portal:values.aksesPortal,p_akses_mess:values.aksesMess,p_office_id:values.officeId||null});
   }
   async function rename(person, name) {
     if (!A.administrator()) throw new Error('Hanya Administrator yang boleh mengubah Nama Akun.');

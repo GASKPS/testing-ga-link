@@ -4,7 +4,7 @@ const map=v=>({id:v.id,employeeId:v.karyawan_id,nik:v.karyawan.nik,nama:v.karyaw
 const compare=(a,b)=>a.tanggalCuti.localeCompare(b.tanggalCuti)||a.nama.localeCompare(b.nama,'id-ID')||a.id.localeCompare(b.id);
 const get=async id=>map(await A.one('pengambilan_skc',id,columns));
 g.SkcStore=Object.freeze({
- async list(){return (await A.all('pengambilan_skc',columns,{},'tanggal_cuti')).map(map).sort(compare);},get,
+ async list(){await A.ready;if(A.profile?.peran==='crew')return [];return (await A.all('pengambilan_skc',columns,{},'tanggal_cuti')).map(map).sort(compare);},get,
  async create(f){const v=await A.rpc('tambah_skc',{p_data:{karyawan_id:f.employeeId,tanggal_cuti:f.tanggalCuti,link_form_cuti:g.DeviceDomain.proofUrl(f.formCutiUrl),link_exit:g.DeviceDomain.proofUrl(f.exitUrl)}},true);return get(v.id);},
  async collect(id,expectedRevision){await A.rpc('ambil_skc',{p_id:id,p_versi:expectedRevision},true);return get(id);}
 });
