@@ -54,6 +54,20 @@ declare v_result jsonb;v_piece jsonb;v_key text;v_id uuid;begin
 end $$;
 revoke all on function internal.catatan34_scrub(jsonb) from public,anon,authenticated;
 
+-- Muat pg_trgm di sesi pemasangan sebelum menyalin konfigurasi fungsi lama.
+-- Pada koneksi baru, GUC ekstensi belum terdaftar sampai fungsi C-nya dipanggil.
+-- Akun pemasang non-superuser kemudian dapat mempertahankan SET pg_trgm.*.
+-- Tidak memasang ekstensi baru dan tidak mengubah nilai ambang pencarian.
+do $$
+declare v_schema text;begin
+ select n.nspname into v_schema
+ from pg_extension e join pg_namespace n on n.oid=e.extnamespace
+ where e.extname='pg_trgm';
+ if v_schema is not null then
+  execute format('select %I.similarity(%L::text,%L::text)',v_schema,'','');
+ end if;
+end $$;
+
 -- Salinan fungsi tetap internal dan tidak bisa dipanggil langsung pengguna.
 -- Pembungkus menjaga Crew serta isi catatan, termasuk RPC lama SECURITY DEFINER.
 do $$

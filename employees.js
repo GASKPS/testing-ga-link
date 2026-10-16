@@ -228,7 +228,7 @@
       select(visible[Number(row.dataset.personIndex)].id); input.focus(); close();
     });
     $(prefix + '-clear').addEventListener('click', () => { select(''); input.focus(); displayOptions(); });
-    host.closest('dialog').addEventListener('close', close);
+    host.closest('dialog')?.addEventListener('close', close);
     return Object.freeze({
       async load(value = '', exclude = null) {
         const people = await repo.list();
