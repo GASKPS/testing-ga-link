@@ -18,7 +18,7 @@
    const p=pending,seq=generation;busy=true;
    try{const value=await config.call(action,p);if(seq!==generation||signature!==identity()){const err=new Error('Akun berubah. Buka kembali menu dengan akun yang aktif.');err.stale=true;throw err;}
     if(action==='check'&&value===null){clear();return null;}const receipt=validate(value,p);clear();return receipt;
-   }catch(err){if(seq===generation&&!err.stale&&err.code&&/^(P0001|22|23|40001|42501|PGRST20[25]|42P01|42883)/.test(err.code)){clear();}throw err;
+   }catch(err){if(seq===generation&&!err.stale&&err.code&&/^(PT409|P0001|22|23|40001|42501|PGRST20[25]|42P01|42883)/.test(err.code)){clear();}throw err;
    }finally{if(seq===generation)busy=false;}
   }
   document.addEventListener('akses:berubah',sync);

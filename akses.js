@@ -83,7 +83,22 @@
     return state.client;
   }
   async function rpc(name,args,write = false) {
-    const client = await requireClient(write), {data,error} = await client.rpc(name,args);
+    const client = await requireClient(write), controller = new AbortController();
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut=true; controller.abort(); }, 30000);
+    let response;
+    try {
+      let request = client.rpc(name,args);
+      // Kiriman punya kunci idempotensi sendiri; SDK tidak mengulang RPC otomatis.
+      if (typeof request.retry === 'function') request=request.retry(false);
+      if (typeof request.abortSignal === 'function') request=request.abortSignal(controller.signal);
+      response = await request;
+      if (timedOut) throw Object.assign(new Error('Server belum mengirim konfirmasi. Gunakan Periksa penyimpanan sebelum mengirim ulang.'), {code:'RPC_TIMEOUT'});
+    } catch (err) {
+      if (timedOut) throw Object.assign(new Error('Server belum mengirim konfirmasi. Gunakan Periksa penyimpanan sebelum mengirim ulang.'), {code:'RPC_TIMEOUT'});
+      throw err;
+    } finally { clearTimeout(timer); }
+    const {data,error} = response;
     if (error) throw Object.assign(new Error(errorText(error)), {code: error.code});
     // PostgREST represents composite row results as arrays, even for one row.
     const rows = ['simpan_office','atur_hak_akses_office','simpan_link_kerja','ubah_nama_akun','simpan_foto_karyawan','atur_masa_extra','simpan_karyawan','simpan_dokumen','catat_perpindahan_dokumen','simpan_perangkat','catat_serah_terima','tambah_skc','ambil_skc','terbitkan_impor_mess','simpan_jabatan','simpan_foto_profil','atur_hak_akses','simpan_tamu','simpan_catatan_admin','ubah_status_catatan','simpan_extra','catat_pemakaian_cuti'];

@@ -8,7 +8,7 @@ declare v_caller public.profil_pengguna;v_target public.profil_pengguna;v_result
  if not found or not v_caller.aktif or v_caller.peran::text not in ('administrator','super_admin') then raise exception 'Hanya pengelola akun yang diizinkan.';end if;
  if p_peran not in ('administrator','super_admin','admin','pembaca','crew') then raise exception 'Peran tidak tersedia.';end if;
  select p.* into v_target from public.profil_pengguna p where p.id=p_id for update;
- if not found or v_target.versi is distinct from p_versi then raise exception using errcode='40001',message='Akun berubah. Buka kembali pengaturannya.';end if;
+ if not found or v_target.versi is distinct from p_versi then raise exception using errcode='PT409',message='Akun berubah. Buka kembali pengaturannya.';end if;
  if v_caller.peran::text<>'administrator' and (v_target.peran::text in ('administrator','super_admin') or p_peran in ('administrator','super_admin') or p_office_id is distinct from v_target.office_id) then raise exception 'Perubahan ini memerlukan Administrator.';end if;
  if exists(select 1 from public.stok_opname o where o.crew_id=p_id and o.status='draf') or exists(select 1 from public.stok_hitung_keluar33 h where h.crew_id=p_id and h.status='draf') then
   if p_office_id is distinct from v_target.office_id or not p_aktif or not p_akses_portal or p_peran not in ('crew','admin','super_admin','administrator') then raise exception 'Alihkan atau selesaikan lembar hitungan aktif sebelum mengubah akses Crew.';end if;

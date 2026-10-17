@@ -250,7 +250,7 @@ begin
  elsif p_jenis='barang' then
   if v_id is not null then
    select i.* into v_item from public.stok_item i where i.id=v_id and i.office_id=p_office for update;
-   if not found or v_item.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='40001',message='Barang berubah. Buka ulang sebelum menyimpan.';end if;
+   if not found or v_item.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='PT409',message='Barang berubah. Buka ulang sebelum menyimpan.';end if;
    if v_item.kode<>internal.stok33_teks(p_data,'kode',60,true) or v_item.satuan<>internal.stok33_teks(p_data,'satuan',40,true) then raise exception 'Kode dan satuan barang yang sudah tersimpan tidak dapat diubah.';end if;
    if not coalesce((p_data->>'aktif')::boolean,true) and (v_item.saldo<>0 or exists(select 1 from public.stok_opname_baris b join public.stok_opname o on o.id=b.opname_id where b.item_id=v_id and o.status in ('draf','menunggu'))) then raise exception 'Barang hanya dapat dinonaktifkan jika saldo nol dan pemeriksaan opname sudah selesai.';end if;
    update public.stok_item i set nama=internal.stok33_teks(p_data,'nama',200,true),spesifikasi=internal.stok33_teks(p_data,'spesifikasi',500),jenis_aset=internal.stok33_teks(p_data,'jenis_aset',100,true),minimum=internal.stok33_jumlah(p_data->'minimum'),aktif=coalesce((p_data->>'aktif')::boolean,true),versi=i.versi+1 where i.id=v_id returning i.* into v_item;
@@ -322,10 +322,10 @@ begin
   if v_role not in ('crew','admin') then raise exception 'Akun ini belum memiliki izin menghitung stok.';end if;
   if p_jenis='hitung_keluar' then
    select h.* into v_h from public.stok_hitung_keluar33 h where h.id=v_id and h.office_id=p_office for update;
-   if not found or v_h.crew_id<>auth.uid() or v_h.status<>'draf' or v_h.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='40001',message='Lembar berubah, sudah dikirim, atau bukan penugasan Anda. Buka ulang lembar.';end if;
+   if not found or v_h.crew_id<>auth.uid() or v_h.status<>'draf' or v_h.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='PT409',message='Lembar berubah, sudah dikirim, atau bukan penugasan Anda. Buka ulang lembar.';end if;
   else
    select o.* into v_o from public.stok_opname o where o.id=v_id and o.office_id=p_office for update;
-   if not found or v_o.crew_id<>auth.uid() or v_o.status<>'draf' or v_o.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='40001',message='Opname berubah, sudah dikirim, atau bukan penugasan Anda. Buka ulang lembar.';end if;
+   if not found or v_o.crew_id<>auth.uid() or v_o.status<>'draf' or v_o.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='PT409',message='Opname berubah, sudah dikirim, atau bukan penugasan Anda. Buka ulang lembar.';end if;
   end if;
   if jsonb_typeof(p_data->'baris') is distinct from 'array' or jsonb_array_length(p_data->'baris')>10000 then raise exception 'Baris hitungan tidak valid.';end if;
   if (select count(distinct x.value->>'item_id') from jsonb_array_elements(p_data->'baris') x)<>jsonb_array_length(p_data->'baris') then raise exception 'Barang hitungan tidak boleh berulang.';end if;
@@ -353,7 +353,7 @@ begin
   end if;
   if p_jenis='periksa_keluar' then
    select h.* into v_h from public.stok_hitung_keluar33 h where h.id=v_id and h.office_id=p_office for update;
-   if not found or v_h.versi is distinct from (p_data->>'versi')::integer or v_h.status not in ('draf','menunggu') then raise exception using errcode='40001',message='Lembar berubah atau sudah diperiksa. Buka ulang hasilnya.';end if;
+   if not found or v_h.versi is distinct from (p_data->>'versi')::integer or v_h.status not in ('draf','menunggu') then raise exception using errcode='PT409',message='Lembar berubah atau sudah diperiksa. Buka ulang hasilnya.';end if;
    if (v_h.status='draf' and v_action not in ('batal','alihkan')) or v_action='sesuaikan' or (v_action='alihkan' and v_h.status<>'draf') then raise exception 'Tindakan tidak sesuai status lembar.';end if;
    if v_action in ('setujui','tutup') then
     if exists(select 1 from public.stok_keluar_baris33 b where b.hitung_id=v_id and b.keluar_crew is null) then raise exception 'Ada barang belum dihitung. Minta hitung ulang terlebih dahulu.';end if;
@@ -366,7 +366,7 @@ begin
    perform internal.stok33_audit(p_office,'keluar',v_id,'Pemeriksaan: '||v_action,p_data);
   else
    select o.* into v_o from public.stok_opname o where o.id=v_id and o.office_id=p_office for update;
-   if not found or v_o.versi is distinct from (p_data->>'versi')::integer or v_o.status not in ('draf','menunggu') then raise exception using errcode='40001',message='Opname berubah atau sudah diperiksa. Buka ulang hasilnya.';end if;
+   if not found or v_o.versi is distinct from (p_data->>'versi')::integer or v_o.status not in ('draf','menunggu') then raise exception using errcode='PT409',message='Opname berubah atau sudah diperiksa. Buka ulang hasilnya.';end if;
    if (v_o.status='draf' and v_action not in ('batal','alihkan')) or (v_action='alihkan' and v_o.status<>'draf') then raise exception 'Tindakan tidak sesuai status opname.';end if;
    if v_action in ('setujui','sesuaikan','tutup') and exists(select 1 from public.stok_opname_baris b where b.opname_id=v_id and b.fisik is null) then raise exception 'Hitungan belum lengkap.';end if;
    if v_action='setujui' and exists(select 1 from public.stok_opname_baris b where b.opname_id=v_id and b.selisih<>0) then raise exception 'Ada selisih. Pilih penyesuaian, hitung ulang, atau tutup dengan alasan.';end if;

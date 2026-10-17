@@ -40,7 +40,23 @@ declare v_p public.profil_pengguna;begin
  elsif new.pemilik34 is distinct from old.pemilik34 or new.office_id34 is distinct from old.office_id34 then raise exception 'Pemilik dan office catatan tidak dapat dipindahkan.';end if;
  if TG_OP='UPDATE' and old.pemilik34<>v_p.id and new.jangkauan34 is distinct from old.jangkauan34 then raise exception 'Hanya pembuat catatan yang dapat mengubah jangkauan.';end if;
  if new.jangkauan34 not in ('pribadi','office') or new.jangkauan34 is null or (new.jangkauan34='office' and new.office_id34 is null) then raise exception 'Pilih jangkauan catatan. Catatan Office memerlukan office akun.';end if;
- if length(new.judul34)>160 then raise exception 'Judul maksimal 160 karakter.';end if;return new;
+ if length(new.judul34)>160 then raise exception 'Judul maksimal 160 karakter.';end if;
+ -- Kolom akun audit pada skema dasar tetap mengikuti status/tanggal tindakan.
+ -- jsonb_populate_record mengabaikan kolom opsional yang tidak ada pada skema lama.
+ if new.status='Aktif' then
+  new:=jsonb_populate_record(new,'{"diselesaikan_oleh":null}'::jsonb);
+ elsif new.status='Selesai' then
+  if TG_OP='INSERT' then new:=jsonb_populate_record(new,jsonb_build_object('diselesaikan_oleh',v_p.id));
+  elsif new.status is distinct from old.status or new.diselesaikan_pada is distinct from old.diselesaikan_pada then
+   new:=jsonb_populate_record(new,jsonb_build_object('diselesaikan_oleh',v_p.id));end if;
+ end if;
+ if not new.disimpan then
+  new:=jsonb_populate_record(new,'{"disimpan_oleh":null}'::jsonb);
+ elsif TG_OP='INSERT' then new:=jsonb_populate_record(new,jsonb_build_object('disimpan_oleh',v_p.id));
+ elsif new.disimpan is distinct from old.disimpan or new.disimpan_pada is distinct from old.disimpan_pada then
+  new:=jsonb_populate_record(new,jsonb_build_object('disimpan_oleh',v_p.id));
+ end if;
+ return new;
 end $$;
 drop trigger if exists catatan34_scope_guard on public.catatan_admin;
 create trigger catatan34_scope_guard before insert or update or delete on public.catatan_admin for each row execute function internal.catatan34_guard();
@@ -75,10 +91,12 @@ declare v_rows jsonb;v_count integer;v_page integer;v_q text:=lower(btrim(coales
 end $$;
 create or replace function public.catatan34_tulis(p_pemilik uuid,p_kunci uuid,p_data jsonb) returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare v_p public.profil_pengguna;v_c public.catatan_admin;v_old public.catatan_admin;v_r internal.catatan_requests34;v_result jsonb;v_id uuid;v_action text;v_date date;begin
+declare v_p public.profil_pengguna;v_c public.catatan_admin;v_old public.catatan_admin;v_r internal.catatan_requests34;v_result jsonb;v_id uuid;v_action text;v_date date;v_nama text;begin
  if p_pemilik is distinct from auth.uid() or p_kunci is null or jsonb_typeof(p_data) is distinct from 'object' then raise exception 'Sesi penyimpanan tidak valid.';end if;
  select p.* into v_p from public.profil_pengguna p where p.id=auth.uid() for share;
  if not found or not v_p.aktif or not v_p.akses_portal or v_p.peran::text not in ('administrator','super_admin','admin') then raise exception 'Akses Catatan tidak diizinkan.';end if;
+ -- Nama audit berasal dari profil sesi, bukan isian pengguna; tetap terisi bila nama profil belum lengkap.
+ v_nama:=coalesce(nullif(btrim(v_p.nama),''),nullif(btrim(v_p.email),''),v_p.id::text);
  perform pg_advisory_xact_lock(hashtextextended('catatan34:'||p_pemilik::text||p_kunci::text,0));
  select * into v_r from internal.catatan_requests34 r where r.pemilik=p_pemilik and r.kunci=p_kunci;
  if found then if v_r.payload is null then raise exception 'Kiriman sudah ditutup. Simpan kembali dengan kunci baru.';end if;if v_r.hasil->'catatan' is not null and not internal.catatan34_id((v_r.hasil#>>'{catatan,id}')::uuid) then raise exception using errcode='42501',message='Akses catatan berubah.';end if;if v_r.payload is distinct from p_data then raise exception 'Kunci kiriman sudah digunakan untuk data lain.';end if;return v_r.hasil;end if;
@@ -86,7 +104,7 @@ declare v_p public.profil_pengguna;v_c public.catatan_admin;v_old public.catatan
  if v_id is not null then
   select c.* into v_old from public.catatan_admin c where c.id=v_id for update;
   if not found or not internal.catatan34_boleh(v_old.pemilik34,v_old.office_id34,v_old.jangkauan34) then raise exception 'Catatan tidak tersedia untuk akun atau office Anda.';end if;
-  if v_old.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='40001',message='Catatan berubah. Buka kembali sebelum menyimpan.';end if;
+  if v_old.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='PT409',message='Catatan berubah. Buka kembali sebelum menyimpan.';end if;
  end if;
  if v_action='simpan' then
   if nullif(btrim(p_data->>'judul'),'') is null or length(p_data->>'judul')>160 or nullif(btrim(p_data->>'isi'),'') is null or length(p_data->>'isi')>3000 then raise exception 'Isi judul dan catatan. Judul maksimal 160, isi maksimal 3000 karakter.';end if;
@@ -94,23 +112,25 @@ declare v_p public.profil_pengguna;v_c public.catatan_admin;v_old public.catatan
   v_date:=nullif(p_data->>'tanggal','')::date;
   if p_data->>'jenis'='Administrasi Karyawan' and not exists(select 1 from public.karyawan k where k.id=nullif(p_data->>'karyawan_id','')::uuid) then raise exception 'Pilih karyawan untuk catatan administrasi.';end if;
   if v_id is null then
-   insert into public.catatan_admin(jenis,karyawan_id,tanggal_pengingat,catatan,nama_pembuat,dibuat_oleh,judul34,jangkauan34)
-   values(p_data->>'jenis',case when p_data->>'jenis'='Administrasi Karyawan' then nullif(p_data->>'karyawan_id','')::uuid end,v_date,p_data->>'isi',v_p.nama,v_p.id,btrim(p_data->>'judul'),p_data->>'jangkauan') returning * into v_c;
+   insert into public.catatan_admin(jenis,karyawan_id,tanggal_pengingat,catatan,nama_pembuat,dibuat_oleh,judul34,jangkauan34,nama_pengubah,status,nama_penyelesai,diselesaikan_pada,disimpan,nama_penyimpan,disimpan_pada)
+   values(p_data->>'jenis',case when p_data->>'jenis'='Administrasi Karyawan' then nullif(p_data->>'karyawan_id','')::uuid end,v_date,p_data->>'isi',v_nama,v_p.id,btrim(p_data->>'judul'),p_data->>'jangkauan',v_nama,'Aktif',null,null,false,null,null) returning * into v_c;
   else
    update public.catatan_admin set judul34=btrim(p_data->>'judul'),catatan=p_data->>'isi',jangkauan34=p_data->>'jangkauan',jenis=p_data->>'jenis',
    karyawan_id=case when p_data->>'jenis'='Administrasi Karyawan' then nullif(p_data->>'karyawan_id','')::uuid end,tanggal_pengingat=v_date,
-   diubah_pada=clock_timestamp(),nama_pengubah=v_p.nama,versi=versi+1 where id=v_id returning * into v_c;
+   diubah_pada=clock_timestamp(),nama_pengubah=v_nama,versi=versi+1 where id=v_id returning * into v_c;
   end if;
  elsif v_id is not null and v_action in ('sematkan','selesai','buka','arsip','pulihkan') then
   update public.catatan_admin set disematkan34=case when v_action='sematkan' then not disematkan34 else disematkan34 end,
   status=case when v_action='selesai' then 'Selesai' when v_action='buka' then 'Aktif' else status end,
   diselesaikan_pada=case when v_action='selesai' then clock_timestamp() when v_action='buka' then null else diselesaikan_pada end,
-  nama_penyelesai=case when v_action='selesai' then v_p.nama when v_action='buka' then '' else nama_penyelesai end,
+  nama_penyelesai=case when v_action='selesai' then v_nama when v_action='buka' then null else nama_penyelesai end,
   disimpan=case when v_action='arsip' then true when v_action='pulihkan' then false else disimpan end,
   disimpan_pada=case when v_action='arsip' then clock_timestamp() when v_action='pulihkan' then null else disimpan_pada end,
-  nama_penyimpan=case when v_action='arsip' then v_p.nama when v_action='pulihkan' then '' else nama_penyimpan end,
-  diubah_pada=clock_timestamp(),nama_pengubah=v_p.nama,versi=versi+1 where id=v_id returning * into v_c;
+  nama_penyimpan=case when v_action='arsip' then v_nama when v_action='pulihkan' then null else nama_penyimpan end,
+  diubah_pada=clock_timestamp(),nama_pengubah=v_nama,versi=versi+1 where id=v_id returning * into v_c;
  else raise exception 'Tindakan catatan tidak valid.';end if;
+ -- Ambil kondisi akhir sesudah seluruh trigger, termasuk trigger audit dasar.
+ select * into v_c from public.catatan_admin where id=v_c.id;
  v_result:=jsonb_build_object('pemilik',v_p.id,'kunci',p_kunci,'catatan',to_jsonb(v_c));
  insert into internal.catatan_requests34 values(v_p.id,p_kunci,p_data,v_result);return v_result;
 end $$;

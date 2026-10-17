@@ -88,3 +88,4 @@ html[data-theme=dark] [data-color=peach]{--note-bg:#4a3932;--note-line:#6a5045}
 html[data-theme=dark] [data-color]{--note-ink:#eceeea;--note-muted:#c4c9c4;--note-hover:#ffffff12;--note-chip:#ffffff09}
 html[data-theme=dark] .k35-warning.today{color:#f2c16e}html[data-theme=dark] .k35-warning.late{color:#ffb2a6}html[data-theme=dark] .k35-error{background:#3c2b28;color:#ffb7a6;border-color:#866354}
 @media(prefers-reduced-motion:reduce){.k35-dialog,.k35-kinds-dialog{animation:none}.k35-card,.k35-card-tools{transition:none}}
+.k35-revision{display:block}.k35-revision[hidden]{display:none}.k35-revision p{margin:8px 0}.k35-revision summary{cursor:pointer;font-weight:600}.k35-revision h3{margin:12px 0 8px}.k35-revision-preview{max-height:200px;overflow:auto;white-space:normal}.k35-revision-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}

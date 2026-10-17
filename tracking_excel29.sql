@@ -218,8 +218,8 @@ begin
    if jsonb_typeof(item) is distinct from 'object' then raise exception 'Baris bukan perpindahan yang valid.';end if;
    select * into doc from public.dokumen d where d.id=(item->>'id')::uuid and (p.peran='administrator' or d.office_id=p.office_id);
    if not found then raise exception using errcode='42501',message='Dokumen tidak tersedia atau di luar office akun.';end if;
-   if doc.versi is distinct from (item->>'versi')::bigint then raise exception using errcode='40001',message='Data dokumen berubah. Periksa posisi terbaru sebelum menyimpan.';end if;
-   if doc.status_terakhir in ('Sudah Diambil','Selesai','Dibatalkan') then raise exception using errcode='40001',message='Dokumen sudah selesai. Batalkan isian baris ini.';end if;
+   if doc.versi is distinct from (item->>'versi')::bigint then raise exception using errcode='PT409',message='Data dokumen berubah. Periksa posisi terbaru sebelum menyimpan.';end if;
+   if doc.status_terakhir in ('Sudah Diambil','Selesai','Dibatalkan') then raise exception using errcode='PT409',message='Dokumen sudah selesai. Batalkan isian baris ini.';end if;
    target:=btrim(coalesce(item->>'tujuan',''));state:=btrim(coalesce(item->>'status',''));note:=btrim(coalesce(item->>'catatan',''));
    if target='' or char_length(target)>140 then raise exception 'Isi tujuan, maksimal 140 karakter.';end if;
    if state not in ('Dititipkan','Menunggu Approval','Sedang Diproses','Perlu Revisi','Siap Diambil','Sudah Diambil','Selesai','Dibatalkan') then raise exception 'Pilih status dokumen yang tersedia.';end if;

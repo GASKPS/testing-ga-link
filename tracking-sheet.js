@@ -81,7 +81,7 @@
   const seq=generation;busy=true;message(action==='check'?'Memeriksa kiriman terakhir…':`Menyimpan ${S.pending?.count||entries.length} perpindahan…`);repaint();
   try{const result=action==='check'?await S.check():action==='retry'?await S.retry():await S.save(entries.map(x=>x.data));if(seq!==generation||!allowed())return;busy=false;if(result){applyReceipt(result);if(!loaded||!records.length)await load(true);}else{message('Kiriman sebelumnya tidak tersimpan. Periksa kembali isian sebelum menyimpan.');repaint();mark();}}
   catch(err){if(seq!==generation||!allowed()||err.stale)return;busy=false;if(S.pending){message(`Hasil penyimpanan belum dikonfirmasi. ${err.message} Gunakan Periksa penyimpanan sebelum mengirim data baru.`,'error');}
-   else{if(err.code==='40001'){await load(true);const result=D.validate(changes,records,T.today());issues=result.issues;onlyChanged=true;render();}message(err.message||'Perpindahan belum disimpan.','error');}repaint();mark();}
+   else{if(['PT409','40001'].includes(err.code)){await load(true);const result=D.validate(changes,records,T.today());issues=result.issues;onlyChanged=true;render();}message(err.message||'Perpindahan belum disimpan.','error');}repaint();mark();}
   finally{if(seq===generation){busy=false;repaint();}}
  }
  function discard(){changes.clear();issues.clear();checked.clear();entries=[];onlyChanged=false;render();g.FormGuard?.clean(form);}

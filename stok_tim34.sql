@@ -63,7 +63,7 @@ declare v_role text;v_prior internal.stok_requests33;v_h public.stok_crew_keluar
  v_id:=nullif(p_data->>'id','')::uuid;v_reason:=internal.stok33_teks(p_data,'alasan',2000);
  if v_id is not null then select * into v_h from public.stok_crew_keluar34 h where h.id=v_id and h.office_id=p_office for update;
   if not found or (v_role='crew' and v_h.crew_id<>auth.uid()) then raise exception 'Catatan tidak tersedia untuk akun Anda.';end if;
-  if v_h.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='40001',message='Catatan berubah. Buka kembali sebelum menyimpan.';end if;
+  if v_h.versi is distinct from (p_data->>'versi')::integer then raise exception using errcode='PT409',message='Catatan berubah. Buka kembali sebelum menyimpan.';end if;
  end if;
  if p_jenis='crew_catat' then
   if v_role<>'crew' then raise exception 'Catatan Crew diisi oleh akun Crew. Admin mencatat transaksi resmi.';end if;
